@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminAuth, getAdminDb } from "@/lib/firebase-admin";
+import { requireAdmin } from "@/lib/admin-api-auth";
 import { FieldValue } from "firebase-admin/firestore";
 
 export async function POST(req: NextRequest) {
   try {
+    await requireAdmin(req);
+
     const { name, email, phone, password } = await req.json();
     const adminAuth = getAdminAuth();
     const adminDb = getAdminDb();
@@ -30,6 +33,10 @@ export async function POST(req: NextRequest) {
     console.error("createCustomer error:", error);
 
     let message = "Musteri olusturulamadi.";
+    if (error.message === "Yetkisiz istek." || error.message === "Admin yetkisi gerekli.") {
+      return NextResponse.json({ message: error.message }, { status: 401 });
+    }
+
     if (error.code === "auth/email-already-exists") {
       message = "Bu e-posta adresi zaten kayitli.";
     } else if (error.code === "auth/invalid-email") {

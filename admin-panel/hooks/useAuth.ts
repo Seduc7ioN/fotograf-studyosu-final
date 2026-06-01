@@ -5,6 +5,9 @@ import {
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
   onAuthStateChanged,
+  browserLocalPersistence,
+  browserSessionPersistence,
+  setPersistence,
   User as FirebaseUser,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -37,7 +40,11 @@ export function useAuth() {
     return unsubscribe;
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, rememberMe = true) => {
+    await setPersistence(
+      auth,
+      rememberMe ? browserLocalPersistence : browserSessionPersistence
+    );
     const cred = await signInWithEmailAndPassword(auth, email, password);
     // Admin mi kontrol et
     const tokenResult = await cred.user.getIdTokenResult(true);

@@ -7,15 +7,18 @@ import {
   onSnapshot,
   doc,
   getDoc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  serverTimestamp,
 } from "firebase/firestore";
-import { httpsCallable } from "firebase/functions";
-import { db, functions } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { User, CreateUserInput } from "@/lib/types";
 import { useEffect, useState } from "react";
+
+async function getAdminToken(): Promise<string> {
+  const token = await auth.currentUser?.getIdToken(true);
+  if (!token) {
+    throw new Error("Oturum bulunamadı. Lütfen tekrar giriş yapın.");
+  }
+  return token;
+}
 
 export function useCustomers() {
   const [customers, setCustomers] = useState<User[]>([]);
@@ -23,10 +26,7 @@ export function useCustomers() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const q = query(
-      collection(db, "users"),
-      orderBy("createdAt", "desc")
-    );
+    const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
 
     const unsubscribe = onSnapshot(
       q,
@@ -59,6 +59,7 @@ export function useCustomer(customerId: string) {
 
   useEffect(() => {
     if (!customerId) return;
+
     getDoc(doc(db, "users", customerId))
       .then((snap) => {
         if (snap.exists()) {
@@ -76,14 +77,14 @@ export function useCustomer(customerId: string) {
   return { customer, loading, error };
 }
 
-/**
- * Yeni müşteri oluşturur.
- * Firebase Auth + Firestore kaydı birlikte oluşturulur (API route üzerinden).
- */
 export async function createCustomer(input: CreateUserInput): Promise<string> {
+  const token = await getAdminToken();
   const res = await fetch("/api/customers/create", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     body: JSON.stringify(input),
   });
 
@@ -100,18 +101,40 @@ export async function updateCustomer(
   customerId: string,
   data: Partial<User>
 ): Promise<void> {
-  await updateDoc(doc(db, "users", customerId), {
-    ...data,
-    updatedAt: serverTimestamp(),
+  const token = await getAdminToken();
+  const res = await fetch("/api/customers/update", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      uid: customerId,
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+    }),
   });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || "Müşteri güncellenemedi.");
+  }
 }
 
 export async function deleteCustomer(customerId: string): Promise<void> {
-  // Önce Firestore kaydını sil, sonra Auth kullanıcısını API route ile sil
-  await fetch("/api/customers/delete", {
+  const token = await getAdminToken();
+  const res = await fetch("/api/customers/delete", {
     method: "DELETE",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     body: JSON.stringify({ uid: customerId }),
   });
-  await deleteDoc(doc(db, "users", customerId));
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || "Müşteri silinemedi.");
+  }
 }

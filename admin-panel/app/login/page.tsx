@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,6 +12,7 @@ import { Camera, Eye, EyeOff, Loader2 } from "lucide-react";
 const loginSchema = z.object({
   email: z.string().email("Geçerli bir e-posta girin"),
   password: z.string().min(6, "Şifre en az 6 karakter olmalı"),
+  rememberMe: z.boolean(),
 });
 
 type LoginForm = z.infer<typeof loginSchema>;
@@ -24,12 +25,33 @@ export default function LoginPage() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
-  } = useForm<LoginForm>({ resolver: zodResolver(loginSchema) });
+  } = useForm<LoginForm>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      rememberMe: true,
+    },
+  });
+
+  useEffect(() => {
+    const savedEmail = window.localStorage.getItem("studio-admin-email");
+    if (savedEmail) {
+      setValue("email", savedEmail);
+      setValue("rememberMe", true);
+    }
+  }, [setValue]);
 
   const onSubmit = async (data: LoginForm) => {
     try {
-      await signIn(data.email, data.password);
+      await signIn(data.email, data.password, data.rememberMe);
+      if (data.rememberMe) {
+        window.localStorage.setItem("studio-admin-email", data.email);
+      } else {
+        window.localStorage.removeItem("studio-admin-email");
+      }
       router.push("/dashboard");
     } catch (error: any) {
       toast.error(error.message || "Giriş başarısız.");
@@ -39,7 +61,6 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-500 rounded-2xl mb-4">
             <Camera className="w-8 h-8 text-white" />
@@ -48,10 +69,8 @@ export default function LoginPage() {
           <p className="text-gray-400 mt-1">Yönetim paneline giriş yapın</p>
         </div>
 
-        {/* Form */}
         <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1.5">
                 E-posta
@@ -72,7 +91,6 @@ export default function LoginPage() {
               )}
             </div>
 
-            {/* Password */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1.5">
                 Şifre
@@ -91,6 +109,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
+                  aria-label={showPassword ? "Şifreyi gizle" : "Şifreyi göster"}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -102,7 +121,16 @@ export default function LoginPage() {
               )}
             </div>
 
-            {/* Submit */}
+            <label className="flex items-center gap-2 text-sm text-gray-300">
+              <input
+                {...register("rememberMe")}
+                type="checkbox"
+                className="h-4 w-4 rounded border-gray-700 bg-gray-800 text-amber-500
+                           focus:ring-amber-500 focus:ring-offset-0"
+              />
+              Beni hatırla
+            </label>
+
             <button
               type="submit"
               disabled={isSubmitting}
