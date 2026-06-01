@@ -1,6 +1,5 @@
 "use client";
 
-import { use } from "react";
 import { useCustomer } from "@/hooks/useCustomers";
 import { useAlbums } from "@/hooks/useAlbums";
 import Link from "next/link";
@@ -9,9 +8,9 @@ import { ArrowLeft, FolderOpen, Plus } from "lucide-react";
 export default function CustomerDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }) {
-  const { id } = use(params);
+  const { id } = params;
   const { customer, loading } = useCustomer(id);
   const { albums } = useAlbums(id);
 

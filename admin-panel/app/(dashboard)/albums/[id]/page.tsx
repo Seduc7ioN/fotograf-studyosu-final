@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { useState } from "react";
 import { useAlbums, useAlbumPhotos, updateAlbum, publishAlbum } from "@/hooks/useAlbums";
 import PhotoUploader from "@/components/features/PhotoUploader";
 import Link from "next/link";
@@ -15,9 +15,9 @@ import { db } from "@/lib/firebase";
 export default function AlbumDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }) {
-  const { id: albumId } = use(params);
+  const { id: albumId } = params;
   const { albums } = useAlbums();
   const album = albums.find((a) => a.id === albumId);
   const { photos, loading } = useAlbumPhotos(albumId);
