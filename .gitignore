@@ -5,6 +5,7 @@ firestore-debug.log
 ui-debug.log
 
 # Admin Panel
+admin-panel/.vercel/
 admin-panel/.next/
 admin-panel/node_modules/
 admin-panel/.env.local
