@@ -1,11 +1,13 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { createAlbum } from "@/hooks/useAlbums";
 import { useCustomers } from "@/hooks/useCustomers";
-import { useRouter } from "next/navigation";
+import { useSettings } from "@/hooks/useSettings";
+import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -20,12 +22,50 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
+const inputClass =
+  "w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5 text-white placeholder-gray-500 focus:border-amber-500 focus:outline-none";
+
+function dateAfterDays(days: number) {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
 export default function NewAlbumPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const selectedCustomerId = searchParams.get("customerId") || "";
   const { customers } = useCustomers();
+  const { settings, loading: settingsLoading } = useSettings();
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } =
-    useForm<FormData>({ resolver: zodResolver(schema) });
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      customerId: selectedCustomerId,
+      title: "",
+      downloadEnabled: true,
+      customerUploadEnabled: false,
+      expiresAt: dateAfterDays(30),
+    },
+  });
+
+  useEffect(() => {
+    if (selectedCustomerId) {
+      setValue("customerId", selectedCustomerId);
+    }
+  }, [selectedCustomerId, setValue]);
+
+  useEffect(() => {
+    if (!settingsLoading) {
+      setValue("downloadEnabled", settings.defaultDownloadEnabled);
+      setValue("expiresAt", dateAfterDays(settings.defaultAlbumExpiryDays));
+    }
+  }, [settings, settingsLoading, setValue]);
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -45,8 +85,10 @@ export default function NewAlbumPage() {
   return (
     <div className="max-w-lg">
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/albums"
-          className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
+        <Link
+          href="/albums"
+          className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+        >
           <ArrowLeft size={18} />
         </Link>
         <div>
@@ -61,12 +103,12 @@ export default function NewAlbumPage() {
             <label className="block text-sm font-medium text-gray-300 mb-1.5">
               Müşteri
             </label>
-            <select {...register("customerId")}
-              className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg
-                         text-white focus:outline-none focus:border-amber-500">
+            <select {...register("customerId")} className={inputClass}>
               <option value="">Müşteri seçin</option>
               {customers.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
               ))}
             </select>
             {errors.customerId && (
@@ -78,9 +120,12 @@ export default function NewAlbumPage() {
             <label className="block text-sm font-medium text-gray-300 mb-1.5">
               Albüm Adı
             </label>
-            <input {...register("title")} type="text" placeholder="Ayşe & Mehmet Dış Çekim"
-              className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg
-                         text-white placeholder-gray-500 focus:outline-none focus:border-amber-500" />
+            <input
+              {...register("title")}
+              type="text"
+              placeholder="Ayşe & Mehmet Dış Çekim"
+              className={inputClass}
+            />
             {errors.title && (
               <p className="text-red-400 text-xs mt-1">{errors.title.message}</p>
             )}
@@ -88,39 +133,58 @@ export default function NewAlbumPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1.5">
-              Bitiş Tarihi (opsiyonel)
+              Bitiş Tarihi
             </label>
-            <input {...register("expiresAt")} type="date"
-              className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg
-                         text-white focus:outline-none focus:border-amber-500" />
+            <input {...register("expiresAt")} type="date" className={inputClass} />
           </div>
 
           <div className="space-y-2 pt-1">
             <label className="flex items-center gap-3 cursor-pointer">
-              <input {...register("downloadEnabled")} type="checkbox"
-                className="w-4 h-4 accent-amber-500" />
+              <input
+                {...register("downloadEnabled")}
+                type="checkbox"
+                className="w-4 h-4 accent-amber-500"
+              />
               <span className="text-sm text-gray-300">İndirmeye izin ver</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer">
-              <input {...register("customerUploadEnabled")} type="checkbox"
-                className="w-4 h-4 accent-amber-500" />
+              <input
+                {...register("customerUploadEnabled")}
+                type="checkbox"
+                className="w-4 h-4 accent-amber-500"
+              />
               <span className="text-sm text-gray-300">Müşteri fotoğraf yükleyebilsin</span>
             </label>
           </div>
 
+          <div className="rounded-lg border border-gray-800 bg-gray-950/50 p-3 text-xs text-gray-500">
+            Varsayılanlar Ayarlar sayfasından gelir: indirme{" "}
+            {settings.defaultDownloadEnabled ? "açık" : "kapalı"}, süre{" "}
+            {settings.defaultAlbumExpiryDays} gün.
+          </div>
+
           <div className="pt-2 flex gap-3">
-            <Link href="/albums"
+            <Link
+              href="/albums"
               className="flex-1 py-2.5 border border-gray-700 text-gray-300 font-medium
-                         rounded-lg text-center hover:bg-gray-800 transition-colors text-sm">
+                         rounded-lg text-center hover:bg-gray-800 transition-colors text-sm"
+            >
               İptal
             </Link>
-            <button type="submit" disabled={isSubmitting}
+            <button
+              type="submit"
+              disabled={isSubmitting}
               className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50
                          text-black font-semibold rounded-lg transition-colors
-                         flex items-center justify-center gap-2 text-sm">
-              {isSubmitting
-                ? <><Loader2 size={16} className="animate-spin" /> Oluşturuluyor...</>
-                : "Albüm Oluştur"}
+                         flex items-center justify-center gap-2 text-sm"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" /> Oluşturuluyor...
+                </>
+              ) : (
+                "Albüm Oluştur"
+              )}
             </button>
           </div>
         </form>

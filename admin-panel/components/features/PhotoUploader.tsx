@@ -16,6 +16,7 @@ import {
   increment,
 } from "firebase/firestore";
 import { storage, db } from "@/lib/firebase";
+import { useSettings } from "@/hooks/useSettings";
 import {
   Upload,
   X,
@@ -45,6 +46,8 @@ export default function PhotoUploader({
 }: PhotoUploaderProps) {
   const [files, setFiles] = useState<UploadFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const { settings } = useSettings();
+  const maxUploadSizeMB = settings.maxUploadSizeMB || 30;
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const newFiles: UploadFile[] = acceptedFiles.map((file) => ({
@@ -60,7 +63,7 @@ export default function PhotoUploader({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { "image/*": [".jpg", ".jpeg", ".png", ".webp"] },
-    maxSize: 30 * 1024 * 1024, // 30 MB
+    maxSize: maxUploadSizeMB * 1024 * 1024,
   });
 
   const removeFile = (id: string) => {
@@ -173,7 +176,7 @@ export default function PhotoUploader({
           {isDragActive ? "Dosyaları bırakın..." : "Fotoğrafları sürükleyin"}
         </p>
         <p className="text-gray-500 text-sm mt-1">
-          veya tıklayarak seçin · JPG, PNG, WEBP · Maks 30 MB
+          veya tıklayarak seçin · JPG, PNG, WEBP · Maks {maxUploadSizeMB} MB
         </p>
       </div>
 
