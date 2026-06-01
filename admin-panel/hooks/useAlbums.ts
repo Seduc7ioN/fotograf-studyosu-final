@@ -20,6 +20,7 @@ import { useEffect, useState } from "react";
 export function useAlbums(customerId?: string) {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let q = query(collection(db, "albums"), orderBy("createdAt", "desc"));
@@ -32,23 +33,34 @@ export function useAlbums(customerId?: string) {
       );
     }
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map(
-        (doc) => ({ id: doc.id, ...doc.data() } as Album)
-      );
-      setAlbums(data);
-      setLoading(false);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const data = snapshot.docs.map(
+          (doc) => ({ id: doc.id, ...doc.data() } as Album)
+        );
+        setAlbums(data);
+        setError(null);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Albums could not be loaded:", err);
+        setAlbums([]);
+        setError("Albümler yüklenemedi.");
+        setLoading(false);
+      }
+    );
 
     return unsubscribe;
   }, [customerId]);
 
-  return { albums, loading };
+  return { albums, loading, error };
 }
 
 export function useAlbumPhotos(albumId: string) {
   const [photos, setPhotos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!albumId) return;
@@ -58,19 +70,29 @@ export function useAlbumPhotos(albumId: string) {
       orderBy("order", "asc")
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setPhotos(data);
-      setLoading(false);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const data = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setPhotos(data);
+        setError(null);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Album photos could not be loaded:", err);
+        setPhotos([]);
+        setError("Fotoğraflar yüklenemedi.");
+        setLoading(false);
+      }
+    );
 
     return unsubscribe;
   }, [albumId]);
 
-  return { photos, loading };
+  return { photos, loading, error };
 }
 
 export async function createAlbum(input: CreateAlbumInput): Promise<string> {
@@ -115,15 +137,26 @@ export async function deleteAlbum(albumId: string): Promise<void> {
 export function useAlbum(albumId: string) {
   const [album, setAlbum] = useState<Album | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!albumId) return;
-    const unsub = onSnapshot(doc(db, "albums", albumId), (snap) => {
-      setAlbum(snap.exists() ? ({ id: snap.id, ...snap.data() } as Album) : null);
-      setLoading(false);
-    });
+    const unsub = onSnapshot(
+      doc(db, "albums", albumId),
+      (snap) => {
+        setAlbum(snap.exists() ? ({ id: snap.id, ...snap.data() } as Album) : null);
+        setError(null);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Album could not be loaded:", err);
+        setAlbum(null);
+        setError("Albüm yüklenemedi.");
+        setLoading(false);
+      }
+    );
     return unsub;
   }, [albumId]);
 
-  return { album, loading };
+  return { album, loading, error };
 }

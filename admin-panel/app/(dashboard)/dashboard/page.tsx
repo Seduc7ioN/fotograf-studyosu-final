@@ -4,10 +4,8 @@ import { useEffect, useState } from "react";
 import { collection, getCountFromServer, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Album } from "@/lib/types";
-import { Users, FolderOpen, Image, TrendingUp } from "lucide-react";
+import { AlertCircle, Users, FolderOpen, TrendingUp } from "lucide-react";
 import Link from "next/link";
-import { formatDistanceToNow } from "date-fns";
-import { tr } from "date-fns/locale";
 
 export default function DashboardPage() {
   const [stats, setStats] = useState({
@@ -17,27 +15,35 @@ export default function DashboardPage() {
   });
   const [recentAlbums, setRecentAlbums] = useState<Album[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchStats() {
-      const [customersSnap, albumsSnap, recentSnap] = await Promise.all([
-        getCountFromServer(query(collection(db, "users"))),
-        getCountFromServer(query(collection(db, "albums"))),
-        getDocs(
-          query(collection(db, "albums"), orderBy("createdAt", "desc"), limit(5))
-        ),
-      ]);
+      try {
+        setError(null);
+        const [customersSnap, albumsSnap, recentSnap] = await Promise.all([
+          getCountFromServer(query(collection(db, "users"))),
+          getCountFromServer(query(collection(db, "albums"))),
+          getDocs(
+            query(collection(db, "albums"), orderBy("createdAt", "desc"), limit(5))
+          ),
+        ]);
 
-      setStats({
-        customers: customersSnap.data().count,
-        albums: albumsSnap.data().count,
-        photos: 0, // Aggregate sayaç eklenebilir
-      });
+        setStats({
+          customers: customersSnap.data().count,
+          albums: albumsSnap.data().count,
+          photos: 0,
+        });
 
-      setRecentAlbums(
-        recentSnap.docs.map((d) => ({ id: d.id, ...d.data() } as Album))
-      );
-      setLoading(false);
+        setRecentAlbums(
+          recentSnap.docs.map((d) => ({ id: d.id, ...d.data() } as Album))
+        );
+      } catch (err) {
+        console.error("Dashboard data could not be loaded:", err);
+        setError("Firebase verileri okunamadı. Firestore kuralları ve admin yetkisini kontrol edin.");
+      } finally {
+        setLoading(false);
+      }
     }
 
     fetchStats();
@@ -55,6 +61,16 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold text-white">Dashboard</h1>
         <p className="text-gray-400 mt-1">Stüdyonuzun genel durumu</p>
       </div>
+
+      {error && (
+        <div className="flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 text-amber-100">
+          <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-400" />
+          <div>
+            <p className="text-sm font-semibold">Veriler yüklenemedi</p>
+            <p className="mt-1 text-sm text-amber-100/80">{error}</p>
+          </div>
+        </div>
+      )}
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

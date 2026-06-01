@@ -20,6 +20,7 @@ import { useEffect, useState } from "react";
 export function useCustomers() {
   const [customers, setCustomers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const q = query(
@@ -27,35 +28,52 @@ export function useCustomers() {
       orderBy("createdAt", "desc")
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs
-        .map((doc) => ({ id: doc.id, ...doc.data() } as User))
-        .filter((u) => u.role === "customer");
-      setCustomers(data);
-      setLoading(false);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const data = snapshot.docs
+          .map((doc) => ({ id: doc.id, ...doc.data() } as User))
+          .filter((u) => u.role === "customer");
+        setCustomers(data);
+        setError(null);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Customers could not be loaded:", err);
+        setCustomers([]);
+        setError("Müşteriler yüklenemedi.");
+        setLoading(false);
+      }
+    );
 
     return unsubscribe;
   }, []);
 
-  return { customers, loading };
+  return { customers, loading, error };
 }
 
 export function useCustomer(customerId: string) {
   const [customer, setCustomer] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!customerId) return;
-    getDoc(doc(db, "users", customerId)).then((snap) => {
-      if (snap.exists()) {
-        setCustomer({ id: snap.id, ...snap.data() } as User);
-      }
-      setLoading(false);
-    });
+    getDoc(doc(db, "users", customerId))
+      .then((snap) => {
+        if (snap.exists()) {
+          setCustomer({ id: snap.id, ...snap.data() } as User);
+        }
+        setError(null);
+      })
+      .catch((err) => {
+        console.error("Customer could not be loaded:", err);
+        setError("Müşteri yüklenemedi.");
+      })
+      .finally(() => setLoading(false));
   }, [customerId]);
 
-  return { customer, loading };
+  return { customer, loading, error };
 }
 
 /**
