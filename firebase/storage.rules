@@ -1,0 +1,57 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAuthenticated() { return request.auth != null; }
+    function isAdmin() { return isAuthenticated() && request.auth.token.role == 'admin'; }
+
+    function isValidImageType() {
+      return request.resource.contentType.matches('image/(jpeg|png|webp|heic)');
+    }
+
+    // Originals — sadece admin yazar, okuma Cloud Functions üzerinden (signed URL)
+    match /albums/{albumId}/originals/{fileName} {
+      allow read: if isAdmin();
+      allow write: if isAdmin() && isValidImageType();
+      allow delete: if isAdmin();
+    }
+
+    // Thumbnails
+    match /albums/{albumId}/thumbs/{fileName} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Watermarked
+    match /albums/{albumId}/watermarked/{fileName} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Videos (V2)
+    match /albums/{albumId}/videos/{fileName} {
+      allow read: if isAdmin();
+      allow write: if isAdmin() && request.resource.contentType.matches('video/.*') &&
+                      request.resource.size < 500 * 1024 * 1024;
+      allow delete: if isAdmin();
+    }
+
+    // YENİ: Müşteri pending yüklemeleri
+    // Müşteri yalnızca kendi albümünün pending klasörüne yazabilir.
+    // Okuma ve silme sadece admin/Cloud Functions.
+    match /albums/{albumId}/pending/{fileName} {
+      // Yazma: authenticated kullanıcı, geçerli resim formatı
+      // Not: Gerçek albüm sahipliği kontrolü getCustomerUploadUrl
+      // Cloud Function tarafından signed URL ile yapılır.
+      allow write: if isAuthenticated() && isValidImageType();
+      allow read: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

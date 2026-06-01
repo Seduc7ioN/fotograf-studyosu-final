@@ -1,0 +1,41 @@
+{
+  "name": "fotograf-studyosu-admin",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.4.0",
+    "@tanstack/react-query": "^5.40.0",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.4.0",
+    "firebase": "^12.14.0",
+    "firebase-admin": "^13.10.0",
+    "lucide-react": "^1.17.0",
+    "next": "^16.2.7",
+    "next-themes": "^0.4.6",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-dropzone": "^15.0.0",
+    "react-hook-form": "^7.51.5",
+    "react-hot-toast": "^2.4.1",
+    "tailwind-merge": "^3.6.0",
+    "zod": "^4.4.3",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.41",
+    "@types/react": "^19.2.16",
+    "@types/react-dom": "^19.2.3",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^9.39.1",
+    "eslint-config-next": "^16.2.7",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5.9.3"
+  }
+}

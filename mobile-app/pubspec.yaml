@@ -1,0 +1,50 @@
+name: fotograf_studyosu
+description: Fotoğraf stüdyosu müşteri uygulaması
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Firebase
+  firebase_core: ^3.1.0
+  firebase_auth: ^5.1.0
+  cloud_firestore: ^5.1.0
+  firebase_storage: ^12.1.0
+  firebase_messaging: ^15.0.1
+  cloud_functions: ^5.0.0
+
+  # State Management
+  flutter_riverpod: ^2.5.1
+
+  # Navigation
+  go_router: ^14.1.4
+
+  # Image
+  cached_network_image: ^3.3.1
+  photo_view: ^0.14.0
+
+  # Müşteri fotoğraf yükleme
+  image_picker: ^1.1.2
+  http: ^1.2.1
+  path: ^1.9.0
+
+  # Storage
+  flutter_secure_storage: ^9.0.0
+
+  # Utils
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
