@@ -1,19 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyDNeWlCy9w6EmFQAE0MeRyePLyGMA-82TM</string>
+	<string>AIzaSyCKKGbZNhQPOYSQGqGZE0YmdiZq9qzQY_g</string>
 	<key>GCM_SENDER_ID</key>
-	<string>105780771464</string>
+	<string>350847112281</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.fotostudyo.musteri</string>
 	<key>PROJECT_ID</key>
-	<string>fotostudyo</string>
+	<string>lumeartwedding-e973a</string>
 	<key>STORAGE_BUCKET</key>
-	<string>fotostudyo.firebasestorage.app</string>
+	<string>lumeartwedding-e973a.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:105780771464:ios:56efe75bca330c2720fd3d</string>
+	<string>1:350847112281:ios:a218b6d0d5dfae9f118d48</string>
 </dict>
 </plist>
+

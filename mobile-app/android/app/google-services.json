@@ -1,29 +1,33 @@
-{
-  "project_info": {
-    "project_number": "105780771464",
-    "project_id": "fotostudyo",
-    "storage_bucket": "fotostudyo.firebasestorage.app"
-  },
-  "client": [
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:105780771464:android:8f183e9ed9dca1f620fd3d",
-        "android_client_info": {
-          "package_name": "com.fotostudyo.musteri"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAnEWM0ZAUU4A7Qv6uq716AAK2aauY3JAk"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    }
-  ],
-  "configuration_version": "1"
+﻿{
+    "project_info":  {
+                         "project_number":  "350847112281",
+                         "project_id":  "lumeartwedding-e973a",
+                         "storage_bucket":  "lumeartwedding-e973a.firebasestorage.app"
+                     },
+    "client":  [
+                   {
+                       "client_info":  {
+                                           "mobilesdk_app_id":  "1:350847112281:android:6420d5e87e2ca9e5118d48",
+                                           "android_client_info":  {
+                                                                       "package_name":  "com.fotostudyo.musteri"
+                                                                   }
+                                       },
+                       "oauth_client":  [
+
+                                        ],
+                       "api_key":  [
+                                       {
+                                           "current_key":  "AIzaSyDK8F_9jQk9sWbP5GdWPF7e9mFHy87ySF8"
+                                       }
+                                   ],
+                       "services":  {
+                                        "appinvite_service":  {
+                                                                  "other_platform_oauth_client":  [
+
+                                                                                                  ]
+                                                              }
+                                    }
+                   }
+               ],
+    "configuration_version":  "1"
 }

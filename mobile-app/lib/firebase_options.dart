@@ -24,19 +24,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAnEWM0ZAUU4A7Qv6uq716AAK2aauY3JAk',
-    appId: '1:105780771464:android:8f183e9ed9dca1f620fd3d',
-    messagingSenderId: '105780771464',
-    projectId: 'fotostudyo',
-    storageBucket: 'fotostudyo.firebasestorage.app',
+    apiKey: 'AIzaSyDK8F_9jQk9sWbP5GdWPF7e9mFHy87ySF8',
+    appId: '1:350847112281:android:6420d5e87e2ca9e5118d48',
+    messagingSenderId: '350847112281',
+    projectId: 'lumeartwedding-e973a',
+    storageBucket: 'lumeartwedding-e973a.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDNeWlCy9w6EmFQAE0MeRyePLyGMA-82TM',
-    appId: '1:105780771464:ios:56efe75bca330c2720fd3d',
-    messagingSenderId: '105780771464',
-    projectId: 'fotostudyo',
-    storageBucket: 'fotostudyo.firebasestorage.app',
+    apiKey: 'AIzaSyCKKGbZNhQPOYSQGqGZE0YmdiZq9qzQY_g',
+    appId: '1:350847112281:ios:a218b6d0d5dfae9f118d48',
+    messagingSenderId: '350847112281',
+    projectId: 'lumeartwedding-e973a',
+    storageBucket: 'lumeartwedding-e973a.firebasestorage.app',
     iosBundleId: 'com.fotostudyo.musteri',
   );
 }
