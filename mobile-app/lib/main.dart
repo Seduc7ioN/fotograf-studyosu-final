@@ -57,8 +57,8 @@ class FotografStudyosuApp extends ConsumerWidget {
           iconTheme: IconThemeData(color: Colors.white),
         ),
         navigationBarTheme: NavigationBarThemeData(
-          backgroundColor: const Color(0xFF111111),
-          indicatorColor: AppColors.primary.withOpacity(0.15),
+          backgroundColor: AppColors.coffee,
+          indicatorColor: AppColors.primary.withOpacity(0.18),
           labelTextStyle: WidgetStateProperty.all(
             const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
           ),

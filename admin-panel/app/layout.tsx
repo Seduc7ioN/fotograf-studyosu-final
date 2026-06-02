@@ -1,10 +1,20 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Cormorant_Garamond, Jost } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import { studioBrand } from "@/lib/brand";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const display = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-display",
+});
+
+const body = Jost({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-body",
+});
 
 export const metadata: Metadata = {
   title: studioBrand.adminTitle,
@@ -22,7 +32,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="tr">
-      <body className={inter.className}>
+      <body className={`${display.variable} ${body.variable} font-body`}>
         {children}
         <Toaster position="top-right" />
       </body>

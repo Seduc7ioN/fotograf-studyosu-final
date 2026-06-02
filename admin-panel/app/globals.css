@@ -1,3 +1,33 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --lume-orange: #e8611a;
+  --lume-bg: #17100b;
+  --lume-bg-deep: #100a07;
+  --lume-panel: #211813;
+  --lume-panel-soft: #281d16;
+  --lume-border: #433126;
+  --lume-cream: #f7f0e8;
+  --lume-muted: #a89280;
+}
+
+html {
+  background: var(--lume-bg-deep);
+}
+
+body {
+  background:
+    radial-gradient(circle at 78% 8%, rgba(232, 97, 26, 0.12), transparent 30rem),
+    radial-gradient(circle at 12% 18%, rgba(232, 97, 26, 0.08), transparent 24rem),
+    linear-gradient(135deg, var(--lume-bg-deep), var(--lume-bg));
+  color: var(--lume-cream);
+}
+
+h1,
+h2,
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+  letter-spacing: 0.01em;
+}

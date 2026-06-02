@@ -23,7 +23,7 @@ export default function DashboardLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+      <div className="min-h-screen bg-[#17100b] flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
       </div>
     );
@@ -32,7 +32,7 @@ export default function DashboardLayout({
   if (!user || !isAdmin) return null;
 
   return (
-    <div className="min-h-screen bg-gray-950 flex">
+    <div className="min-h-screen bg-[#100a07] flex">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <Header />

@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useAuth } from "@/hooks/useAuth";
-import { studioBrand } from "@/lib/brand";
 import toast from "react-hot-toast";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { studioBrand } from "@/lib/brand";
 
 const loginSchema = z.object({
   email: z.string().email("Geçerli bir e-posta girin"),
@@ -31,11 +31,7 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      rememberMe: true,
-    },
+    defaultValues: { email: "", password: "", rememberMe: true },
   });
 
   useEffect(() => {
@@ -65,101 +61,85 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#1d140e] p-4">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_12%,rgba(232,97,26,0.18),transparent_28rem),radial-gradient(circle_at_8%_85%,rgba(232,97,26,0.09),transparent_24rem)]" />
+      <div className="absolute left-1/2 top-0 h-px w-72 -translate-x-1/2 bg-gradient-to-r from-transparent via-[#E8611A] to-transparent opacity-70" />
+
+      <div className="relative w-full max-w-[420px] rounded-[28px] border border-[#4a3529] bg-[#1f1813]/95 px-9 py-10 shadow-[0_0_80px_rgba(232,97,26,0.13)] backdrop-blur">
+        <div className="mb-8 text-center">
           <Image
-            src="/lumeart-logo.svg"
+            src="/lumeart-mark.svg"
             alt={studioBrand.name}
-            width={320}
-            height={124}
+            width={260}
+            height={160}
             priority
-            className="mx-auto mb-5 h-24 w-auto rounded-xl bg-white object-contain p-3"
+            className="mx-auto h-36 w-auto object-contain"
           />
-          <h1 className="text-2xl font-bold text-white">{studioBrand.adminTitle}</h1>
-          <p className="text-gray-400 mt-1">{studioBrand.panelSubtitle} girişi yapın</p>
         </div>
 
-        <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">
-                E-posta
-              </label>
-              <input
-                {...register("email")}
-                type="email"
-                placeholder="lumeartwedding@gmail.com"
-                className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg
-                           text-white placeholder-gray-500 focus:outline-none
-                           focus:border-amber-500 focus:ring-1 focus:ring-amber-500
-                           transition-colors"
-              />
-              {errors.email && (
-                <p className="text-red-400 text-xs mt-1">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">
-                Şifre
-              </label>
-              <div className="relative">
-                <input
-                  {...register("password")}
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  className="w-full px-4 py-2.5 pr-11 bg-gray-800 border border-gray-700 rounded-lg
-                             text-white placeholder-gray-500 focus:outline-none
-                             focus:border-amber-500 focus:ring-1 focus:ring-amber-500
-                             transition-colors"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
-                  aria-label={showPassword ? "Şifreyi gizle" : "Şifreyi göster"}
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="text-red-400 text-xs mt-1">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
-
-            <label className="flex items-center gap-2 text-sm text-gray-300">
-              <input
-                {...register("rememberMe")}
-                type="checkbox"
-                className="h-4 w-4 rounded border-gray-700 bg-gray-800 text-amber-500
-                           focus:ring-amber-500 focus:ring-offset-0"
-              />
-              Beni hatırla
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <div>
+            <label className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.35em] text-[#8d7462]">
+              E-posta
             </label>
+            <input
+              {...register("email")}
+              type="email"
+              placeholder="lumeartwedding@gmail.com"
+              className="w-full rounded-lg border border-[#6d5444] bg-[#f8f5f0] px-4 py-3 text-[#2b1d15] placeholder-[#82756c] outline-none transition focus:border-[#E8611A] focus:ring-2 focus:ring-[#E8611A]/35"
+            />
+            {errors.email && <p className="mt-1 text-xs text-red-300">{errors.email.message}</p>}
+          </div>
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 disabled:bg-amber-500/50
-                         text-white font-semibold rounded-lg transition-colors
-                         flex items-center justify-center gap-2"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 size={18} className="animate-spin" />
-                  Giriş yapılıyor...
-                </>
-              ) : (
-                "Giriş Yap"
-              )}
-            </button>
-          </form>
-        </div>
+          <div>
+            <label className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.35em] text-[#8d7462]">
+              Şifre
+            </label>
+            <div className="relative">
+              <input
+                {...register("password")}
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                className="w-full rounded-lg border border-[#6d5444] bg-[#f8f5f0] px-4 py-3 pr-11 text-[#2b1d15] placeholder-[#82756c] outline-none transition focus:border-[#E8611A] focus:ring-2 focus:ring-[#E8611A]/35"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6d5444] hover:text-[#2b1d15]"
+                aria-label={showPassword ? "Şifreyi gizle" : "Şifreyi göster"}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            {errors.password && <p className="mt-1 text-xs text-red-300">{errors.password.message}</p>}
+          </div>
+
+          <label className="flex items-center gap-2 text-sm text-[#b9a99b]">
+            <input
+              {...register("rememberMe")}
+              type="checkbox"
+              className="h-4 w-4 rounded border-[#6d5444] bg-[#211813] text-[#E8611A] focus:ring-[#E8611A] focus:ring-offset-0"
+            />
+            Beni hatırla
+          </label>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#E8611A] px-4 py-3 text-sm font-bold uppercase tracking-[0.28em] text-[#170f0a] transition hover:bg-[#ff7a32] disabled:opacity-60"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 size={18} className="animate-spin" />
+                Giriş yapılıyor...
+              </>
+            ) : (
+              "Giriş Yap"
+            )}
+          </button>
+        </form>
+
+        <p className="mt-8 text-center text-xs text-[#6f5848]">© 2026 {studioBrand.name}</p>
       </div>
     </div>
   );

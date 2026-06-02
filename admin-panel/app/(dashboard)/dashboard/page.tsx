@@ -233,8 +233,8 @@ export default function DashboardPage() {
       value: albums.length,
       helper: `${albums.filter((album) => album.status === "ready").length} hazır albüm`,
       icon: FolderOpen,
-      color: "text-amber-400",
-      bg: "bg-amber-400/10",
+      color: "text-[#ff8a45]",
+      bg: "bg-[#E8611A]/15",
     },
     {
       label: "Bu Ay Kazanç",
@@ -258,13 +258,13 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-        <p className="text-gray-400 mt-1">Müşteri, albüm ve kazanç takibi</p>
+        <h1 className="text-2xl font-bold text-[#f7f0e8]">Dashboard</h1>
+        <p className="text-[#b9a99b] mt-1">Müşteri, albüm ve kazanç takibi</p>
       </div>
 
       {(error || incomeError) && (
         <div className="flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 text-amber-100">
-          <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-400" />
+          <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[#ff8a45]" />
           <div>
             <p className="text-sm font-semibold">Veriler yüklenemedi</p>
             <p className="mt-1 text-sm text-amber-100/80">{error || incomeError}</p>
@@ -274,42 +274,42 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {statCards.map((card) => (
-          <div key={card.label} className="rounded-xl border border-gray-800 bg-gray-900 p-5">
+          <div key={card.label} className="rounded-xl border border-[#433126] bg-[#1f1813] p-5">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-sm text-gray-400">{card.label}</span>
+              <span className="text-sm text-[#b9a99b]">{card.label}</span>
               <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${card.bg}`}>
                 <card.icon className={`h-5 w-5 ${card.color}`} />
               </div>
             </div>
-            <p className="text-3xl font-bold text-white">{loading ? "—" : card.value}</p>
-            <p className="mt-2 text-xs text-gray-500">{card.helper}</p>
+            <p className="text-3xl font-bold text-[#f7f0e8]">{loading ? "—" : card.value}</p>
+            <p className="mt-2 text-xs text-[#8d7462]">{card.helper}</p>
           </div>
         ))}
       </div>
 
-      <section className="rounded-xl border border-gray-800 bg-gray-900">
-        <div className="border-b border-gray-800 px-5 py-4">
-          <h2 className="font-semibold text-white">Dönem Özeti</h2>
-          <p className="mt-1 text-xs text-gray-500">Günlük, haftalık ve aylık müşteri/kazanç görünümü.</p>
+      <section className="rounded-xl border border-[#433126] bg-[#1f1813]">
+        <div className="border-b border-[#433126] px-5 py-4">
+          <h2 className="font-semibold text-[#f7f0e8]">Dönem Özeti</h2>
+          <p className="mt-1 text-xs text-[#8d7462]">Günlük, haftalık ve aylık müşteri/kazanç görünümü.</p>
         </div>
         <div className="grid gap-3 p-5 md:grid-cols-3">
           {periodCards.map((item) => (
-            <div key={item.label} className="rounded-lg border border-gray-800 bg-gray-950/50 p-4">
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                <item.icon className="h-4 w-4 text-amber-400" />
+            <div key={item.label} className="rounded-lg border border-[#433126] bg-[#100a07]/70 p-4">
+              <div className="flex items-center gap-2 text-xs text-[#8d7462]">
+                <item.icon className="h-4 w-4 text-[#ff8a45]" />
                 {item.label}
               </div>
-              <p className="mt-2 text-xl font-bold text-white">{item.value}</p>
+              <p className="mt-2 text-xl font-bold text-[#f7f0e8]">{item.value}</p>
             </div>
           ))}
         </div>
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <div className="rounded-xl border border-gray-800 bg-gray-900">
-          <div className="border-b border-gray-800 px-5 py-4">
-            <h2 className="font-semibold text-white">Kazanç Kaydı Ekle</h2>
-            <p className="mt-1 text-xs text-gray-500">Ödeme aldığınız işleri buradan kaydedin.</p>
+        <div className="rounded-xl border border-[#433126] bg-[#1f1813]">
+          <div className="border-b border-[#433126] px-5 py-4">
+            <h2 className="font-semibold text-[#f7f0e8]">Kazanç Kaydı Ekle</h2>
+            <p className="mt-1 text-xs text-[#8d7462]">Ödeme aldığınız işleri buradan kaydedin.</p>
           </div>
           <form onSubmit={handleIncomeSubmit} className="space-y-4 p-5">
             <Field label="Açıklama">
@@ -361,7 +361,7 @@ export default function DashboardPage() {
             <button
               type="submit"
               disabled={savingIncome}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-amber-400 disabled:opacity-60"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-[#f7f0e8] transition-colors hover:bg-amber-400 disabled:opacity-60"
             >
               {savingIncome ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
               Kazanç Kaydı Ekle
@@ -369,16 +369,16 @@ export default function DashboardPage() {
           </form>
         </div>
 
-        <div className="rounded-xl border border-gray-800 bg-gray-900">
-          <div className="border-b border-gray-800 px-5 py-4">
-            <h2 className="font-semibold text-white">Son Kazançlar</h2>
-            <p className="mt-1 text-xs text-gray-500">En yeni ödeme kayıtları.</p>
+        <div className="rounded-xl border border-[#433126] bg-[#1f1813]">
+          <div className="border-b border-[#433126] px-5 py-4">
+            <h2 className="font-semibold text-[#f7f0e8]">Son Kazançlar</h2>
+            <p className="mt-1 text-xs text-[#8d7462]">En yeni ödeme kayıtları.</p>
           </div>
           <div className="divide-y divide-gray-800">
             {incomeLoading ? (
-              <div className="p-8 text-center text-gray-500">Kazanç kayıtları yükleniyor...</div>
+              <div className="p-8 text-center text-[#8d7462]">Kazanç kayıtları yükleniyor...</div>
             ) : records.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">Henüz kazanç kaydı yok.</div>
+              <div className="p-8 text-center text-[#8d7462]">Henüz kazanç kaydı yok.</div>
             ) : (
               records.slice(0, 8).map((record) => {
                 const paidAt = toDate(record.paidAt);
@@ -388,8 +388,8 @@ export default function DashboardPage() {
                       <TurkishLira className="h-5 w-5 text-green-400" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-white">{record.title}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="truncate text-sm font-medium text-[#f7f0e8]">{record.title}</p>
+                      <p className="text-xs text-[#8d7462]">
                         {record.customerName || "Müşteri belirtilmedi"}
                         {paidAt ? ` · ${paidAt.toLocaleDateString("tr-TR")}` : ""}
                       </p>
@@ -399,7 +399,7 @@ export default function DashboardPage() {
                       type="button"
                       onClick={() => handleDeleteIncome(record.id)}
                       disabled={deletingIncomeId === record.id}
-                      className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-red-950/40 hover:text-red-300 disabled:opacity-60"
+                      className="rounded-lg p-2 text-[#8d7462] transition-colors hover:bg-red-950/40 hover:text-red-300 disabled:opacity-60"
                       aria-label="Kazanç kaydını sil"
                     >
                       {deletingIncomeId === record.id ? (
@@ -416,36 +416,36 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <div className="rounded-xl border border-gray-800 bg-gray-900">
-        <div className="flex items-center justify-between border-b border-gray-800 p-5">
-          <h2 className="font-semibold text-white">Son Albümler</h2>
-          <Link href="/albums" className="text-sm text-amber-400 hover:text-amber-300">
+      <div className="rounded-xl border border-[#433126] bg-[#1f1813]">
+        <div className="flex items-center justify-between border-b border-[#433126] p-5">
+          <h2 className="font-semibold text-[#f7f0e8]">Son Albümler</h2>
+          <Link href="/albums" className="text-sm text-[#ff8a45] hover:text-[#ffb17c]">
             Tümünü gör →
           </Link>
         </div>
         <div className="divide-y divide-gray-800">
           {recentAlbums.length === 0 && !loading && (
-            <p className="p-5 text-center text-sm text-gray-500">Henüz albüm yok.</p>
+            <p className="p-5 text-center text-sm text-[#8d7462]">Henüz albüm yok.</p>
           )}
           {recentAlbums.map((album) => (
             <Link
               key={album.id}
               href={`/albums/${album.id}`}
-              className="flex items-center gap-4 p-4 transition-colors hover:bg-gray-800/50"
+              className="flex items-center gap-4 p-4 transition-colors hover:bg-[#281d16]/50"
             >
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gray-800">
-                <FolderOpen className="h-5 w-5 text-amber-400" />
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-[#281d16]">
+                <FolderOpen className="h-5 w-5 text-[#ff8a45]" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-white">{album.title}</p>
-                <p className="text-xs text-gray-500">{album.photoCount ?? 0} fotoğraf</p>
+                <p className="truncate text-sm font-medium text-[#f7f0e8]">{album.title}</p>
+                <p className="text-xs text-[#8d7462]">{album.photoCount ?? 0} fotoğraf</p>
               </div>
               <span
                 className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                   album.status === "ready"
                     ? "bg-green-400/10 text-green-400"
                     : album.status === "archived"
-                    ? "bg-gray-700 text-gray-400"
+                    ? "bg-gray-700 text-[#b9a99b]"
                     : "bg-yellow-400/10 text-yellow-400"
                 }`}
               >
@@ -460,7 +460,7 @@ export default function DashboardPage() {
 }
 
 const inputClass =
-  "w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5 text-white placeholder-gray-500 transition-colors focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500";
+  "w-full rounded-lg border border-gray-700 bg-[#281d16] px-4 py-2.5 text-[#f7f0e8] placeholder-gray-500 transition-colors focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500";
 
 function Field({
   label,
@@ -476,3 +476,4 @@ function Field({
     </label>
   );
 }
+

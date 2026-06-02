@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   FolderOpen,
@@ -34,30 +34,33 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col h-screen sticky top-0">
-      <div className="p-6 border-b border-gray-800">
-        <div className="flex items-center gap-3">
-          <Image src="/icon.svg" alt="" width={40} height={40} className="rounded-xl" />
-          <div>
-            <p className="font-bold text-white text-sm">{studioBrand.adminTitle}</p>
-            <p className="text-gray-500 text-xs">{studioBrand.panelSubtitle}</p>
-          </div>
-        </div>
+    <aside className="sticky top-0 flex h-screen w-64 flex-col border-r border-[#38271d] bg-[#17100b]">
+      <div className="border-b border-[#38271d] p-6">
+        <Image
+          src="/lumeart-mark.svg"
+          alt={studioBrand.name}
+          width={210}
+          height={128}
+          className="h-auto w-full"
+        />
+        <p className="mt-3 font-display text-lg font-semibold text-[#f7f0e8]">
+          {studioBrand.adminTitle}
+        </p>
+        <p className="text-xs text-[#8d7462]">{studioBrand.panelSubtitle}</p>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex-1 space-y-1 p-4">
         {navItems.map((item) => {
-          const active =
-            pathname === item.href || pathname.startsWith(item.href + "/");
+          const active = pathname === item.href || pathname.startsWith(item.href + "/");
           return (
             <Link
               key={item.href}
               href={item.href}
               className={clsx(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 active
-                  ? "bg-amber-500/10 text-amber-400"
-                  : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                  ? "bg-[#E8611A]/15 text-[#ff8a45]"
+                  : "text-[#b9a99b] hover:bg-[#281d16] hover:text-[#f7f0e8]"
               )}
             >
               <item.icon size={18} />
@@ -67,11 +70,10 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t border-gray-800">
+      <div className="border-t border-[#38271d] p-4">
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
-                     text-gray-400 hover:bg-gray-800 hover:text-red-400 transition-colors w-full"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[#b9a99b] transition-colors hover:bg-[#281d16] hover:text-red-300"
         >
           <LogOut size={18} />
           Çıkış Yap

@@ -1,0 +1,6 @@
+<svg width="360" height="220" viewBox="0 0 360 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <text x="180" y="78" text-anchor="middle" fill="#E8611A" font-family="Georgia, 'Times New Roman', serif" font-size="58" font-weight="400" letter-spacing="2">LA</text>
+  <text x="180" y="120" text-anchor="middle" fill="#F7F0E8" font-family="Jost, Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="7">LUME ART</text>
+  <text x="180" y="146" text-anchor="middle" fill="#B9A99B" font-family="'Brush Script MT', 'Segoe Script', cursive" font-size="20" font-style="italic" letter-spacing="2">wedding</text>
+  <path d="M140 174H220" stroke="#E8611A" stroke-width="1.3" stroke-linecap="round"/>
+</svg>

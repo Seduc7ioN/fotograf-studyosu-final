@@ -5,4 +5,5 @@ export const studioBrand = {
   instagramUrl: "https://www.instagram.com/lumeartwedding",
   instagramHandle: "@lumeartwedding",
   phone: "0 533 603 43 16",
+  phoneHref: "tel:+905336034316",
 };
