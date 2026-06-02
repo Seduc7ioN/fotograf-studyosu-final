@@ -40,6 +40,10 @@ export default function LoginPage() {
 
   useEffect(() => {
     const savedEmail = window.localStorage.getItem("studio-admin-email");
+    if (savedEmail === "eserulag@gmail.com") {
+      window.localStorage.removeItem("studio-admin-email");
+      return;
+    }
     if (savedEmail) {
       setValue("email", savedEmail);
       setValue("rememberMe", true);
