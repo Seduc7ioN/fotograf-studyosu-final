@@ -1,13 +1,14 @@
 "use client";
 
+import { useMemo } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { createCustomer } from "@/hooks/useCustomers";
-import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { ArrowLeft, Loader2 } from "lucide-react";
-import Link from "next/link";
+import { ArrowLeft, Copy, Loader2 } from "lucide-react";
+import { createCustomer } from "@/hooks/useCustomers";
 
 const schema = z.object({
   name: z.string().min(2, "İsim en az 2 karakter olmalı"),
@@ -18,19 +19,54 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
+function firstName(name: string) {
+  return name.trim().split(/\s+/)[0] || "Müşterimiz";
+}
+
+function buildLoginMessage(data: Partial<FormData>) {
+  const name = firstName(data.name || "");
+  return `Merhaba ${name} Hanım/Bey,
+Fotoğraflarınıza erişmek için mobil uygulamaya aşağıdaki bilgilerle giriş yapabilirsiniz:
+
+E-posta: ${data.email || "musteri@example.com"}
+Şifre: ${data.password || "Musteri12345"}`;
+}
+
 export default function NewCustomerPage() {
   const router = useRouter();
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
-  } = useForm<FormData>({ resolver: zodResolver(schema) });
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      password: "",
+    },
+  });
+
+  const watchedValues = watch();
+  const loginMessage = useMemo(() => buildLoginMessage(watchedValues), [watchedValues]);
+
+  const copyLoginMessage = async () => {
+    try {
+      await navigator.clipboard.writeText(loginMessage);
+      toast.success("Giriş bilgileri kopyalandı.");
+    } catch {
+      toast.error("Kopyalanamadı. Metni elle seçip kopyalayabilirsiniz.");
+    }
+  };
 
   const onSubmit = async (data: FormData) => {
     try {
       const uid = await createCustomer(data);
-      toast.success("Müşteri başarıyla oluşturuldu!");
+      await navigator.clipboard.writeText(buildLoginMessage(data)).catch(() => undefined);
+      toast.success("Müşteri oluşturuldu, giriş bilgileri kopyalandı.");
       router.push(`/customers/${uid}`);
     } catch (error: any) {
       toast.error(error.message || "Müşteri oluşturulamadı.");
@@ -45,67 +81,97 @@ export default function NewCustomerPage() {
   ];
 
   return (
-    <div className="max-w-lg">
-      <div className="flex items-center gap-3 mb-6">
+    <div className="max-w-5xl">
+      <div className="mb-6 flex items-center gap-3">
         <Link
           href="/customers"
-          className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+          className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-800 hover:text-white"
         >
           <ArrowLeft size={18} />
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-white">Yeni Müşteri</h1>
-          <p className="text-gray-400 text-sm">Uygulama erişimi için müşteri oluşturun</p>
+          <p className="text-sm text-gray-400">Mobil uygulama erişimi için müşteri hesabı oluşturun</p>
         </div>
       </div>
 
-      <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {fields.map((field) => (
-            <div key={field.name}>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">
-                {field.label}
-              </label>
-              <input
-                {...register(field.name)}
-                type={field.type}
-                placeholder={field.placeholder}
-                className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg
-                           text-white placeholder-gray-500 focus:outline-none
-                           focus:border-amber-500 focus:ring-1 focus:ring-amber-500
-                           transition-colors"
-              />
-              {errors[field.name] && (
-                <p className="text-red-400 text-xs mt-1">
-                  {errors[field.name]?.message}
-                </p>
-              )}
-            </div>
-          ))}
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {fields.map((field) => (
+              <div key={field.name}>
+                <label className="mb-1.5 block text-sm font-medium text-gray-300">
+                  {field.label}
+                </label>
+                <input
+                  {...register(field.name)}
+                  type={field.type}
+                  placeholder={field.placeholder}
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5 text-white
+                             placeholder-gray-500 transition-colors focus:border-amber-500
+                             focus:outline-none focus:ring-1 focus:ring-amber-500"
+                />
+                {errors[field.name] && (
+                  <p className="mt-1 text-xs text-red-400">
+                    {errors[field.name]?.message}
+                  </p>
+                )}
+              </div>
+            ))}
 
-          <div className="pt-2 flex gap-3">
-            <Link
-              href="/customers"
-              className="flex-1 py-2.5 border border-gray-700 text-gray-300 font-medium
-                         rounded-lg text-center hover:bg-gray-800 transition-colors text-sm"
-            >
-              İptal
-            </Link>
+            <div className="flex gap-3 pt-2">
+              <Link
+                href="/customers"
+                className="flex-1 rounded-lg border border-gray-700 py-2.5 text-center text-sm font-medium
+                           text-gray-300 transition-colors hover:bg-gray-800"
+              >
+                İptal
+              </Link>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-amber-500 py-2.5
+                           text-sm font-semibold text-white transition-colors hover:bg-amber-400
+                           disabled:opacity-50"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Oluşturuluyor...
+                  </>
+                ) : (
+                  "Müşteri Oluştur"
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <aside className="rounded-xl border border-gray-800 bg-gray-900">
+          <div className="flex items-center justify-between border-b border-gray-800 px-5 py-4">
+            <div>
+              <h2 className="font-semibold text-white">Müşteriye Gönderilecek Giriş Bilgileri</h2>
+              <p className="mt-1 text-xs text-gray-500">Formu doldurdukça metin otomatik güncellenir.</p>
+            </div>
             <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50
-                         text-white font-semibold rounded-lg transition-colors
-                         flex items-center justify-center gap-2 text-sm"
+              type="button"
+              onClick={copyLoginMessage}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-700 px-3 py-2 text-xs
+                         font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
             >
-              {isSubmitting ? (
-                <><Loader2 size={16} className="animate-spin" /> Oluşturuluyor...</>
-              ) : (
-                "Müşteri Oluştur"
-              )}
+              <Copy size={14} />
+              Kopyala
             </button>
           </div>
-        </form>
+          <div className="p-5">
+            <pre className="whitespace-pre-wrap rounded-lg border border-gray-800 bg-gray-950 p-4 text-sm leading-6 text-gray-200">
+              {loginMessage}
+            </pre>
+            <p className="mt-3 text-xs text-gray-500">
+              Müşteri oluşturulduğunda bu metin otomatik panoya kopyalanır.
+            </p>
+          </div>
+        </aside>
       </div>
     </div>
   );

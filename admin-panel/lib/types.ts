@@ -14,6 +14,24 @@ export interface User {
   createdAt: Timestamp;
 }
 
+export interface IncomeRecord {
+  id: string;
+  title: string;
+  amount: number;
+  customerName?: string;
+  note?: string;
+  paidAt: Timestamp;
+  createdAt: Timestamp;
+}
+
+export interface CreateIncomeRecordInput {
+  title: string;
+  amount: number;
+  customerName?: string;
+  note?: string;
+  paidAt: Date;
+}
+
 export interface CreateUserInput {
   name: string;
   email: string;
