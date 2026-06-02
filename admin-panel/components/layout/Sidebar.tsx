@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  CalendarDays,
   FolderOpen,
   LayoutDashboard,
   LogOut,
@@ -17,6 +18,7 @@ import { studioBrand } from "@/lib/brand";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+  { href: "/agenda", icon: CalendarDays, label: "Ajanda" },
   { href: "/customers", icon: Users, label: "Müşteriler" },
   { href: "/albums", icon: FolderOpen, label: "Albümler" },
   { href: "/uploads", icon: Upload, label: "Yüklemeler" },

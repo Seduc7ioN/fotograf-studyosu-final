@@ -32,6 +32,27 @@ export interface CreateIncomeRecordInput {
   paidAt: Date;
 }
 
+export interface ScheduleEvent {
+  id: string;
+  title: string;
+  eventDate: Timestamp;
+  eventDateKey: string;
+  startTime?: string;
+  location?: string;
+  note?: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export interface CreateScheduleEventInput {
+  title: string;
+  eventDate: Date;
+  eventDateKey: string;
+  startTime?: string;
+  location?: string;
+  note?: string;
+}
+
 export interface CreateUserInput {
   name: string;
   email: string;
