@@ -1,18 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
 import {
-  Camera, Upload,
-  LayoutDashboard,
-  Users,
   FolderOpen,
-  Settings,
+  LayoutDashboard,
   LogOut,
+  Settings,
+  Upload,
+  Users,
 } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-import { useRouter } from "next/navigation";
 import clsx from "clsx";
+import { useAuth } from "@/hooks/useAuth";
+import { studioBrand } from "@/lib/brand";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -24,8 +25,8 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { signOut } = useAuth();
   const router = useRouter();
+  const { signOut } = useAuth();
 
   const handleSignOut = async () => {
     await signOut();
@@ -34,20 +35,16 @@ export default function Sidebar() {
 
   return (
     <aside className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col h-screen sticky top-0">
-      {/* Logo */}
       <div className="p-6 border-b border-gray-800">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-amber-500 rounded-xl flex items-center justify-center">
-            <Camera className="w-5 h-5 text-white" />
-          </div>
+          <Image src="/icon.svg" alt="" width={40} height={40} className="rounded-xl" />
           <div>
-            <p className="font-bold text-white text-sm">Stüdyo Admin</p>
-            <p className="text-gray-500 text-xs">Yönetim Paneli</p>
+            <p className="font-bold text-white text-sm">{studioBrand.adminTitle}</p>
+            <p className="text-gray-500 text-xs">{studioBrand.panelSubtitle}</p>
           </div>
         </div>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 p-4 space-y-1">
         {navItems.map((item) => {
           const active =
@@ -70,7 +67,6 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* Sign Out */}
       <div className="p-4 border-t border-gray-800">
         <button
           onClick={handleSignOut}

@@ -3,6 +3,7 @@
 import { saveSettings, StudioSettings, useSettings } from "@/hooks/useSettings";
 import {
   AlertCircle,
+  AtSign,
   Building2,
   Loader2,
   Save,
@@ -106,6 +107,17 @@ export default function SettingsPage() {
                   placeholder="https://..."
                   className={inputClass}
                 />
+              </Field>
+              <Field label="Instagram">
+                <div className="relative">
+                  <AtSign className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+                  <input
+                    value={settings.instagramUrl}
+                    onChange={(e) => updateField("instagramUrl", e.target.value)}
+                    placeholder="https://www.instagram.com/lumeartwedding"
+                    className={`${inputClass} pl-10`}
+                  />
+                </div>
               </Field>
               <div className="md:col-span-2">
                 <Field label="Adres">

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/constants/studio_brand.dart';
 import '../../../providers/auth_provider.dart';
 import '../../constants/app_colors.dart';
 import '../kvkk/kvkk_rights_screen.dart';
@@ -32,7 +33,6 @@ class ProfileScreen extends ConsumerWidget {
           return ListView(
             padding: const EdgeInsets.all(20),
             children: [
-              // Avatar
               Center(
                 child: Container(
                   width: 80,
@@ -41,13 +41,13 @@ class ProfileScreen extends ConsumerWidget {
                     color: AppColors.primary.withOpacity(0.15),
                     shape: BoxShape.circle,
                     border: Border.all(
-                        color: AppColors.primary.withOpacity(0.4), width: 2),
+                      color: AppColors.primary.withOpacity(0.4),
+                      width: 2,
+                    ),
                   ),
                   child: Center(
                     child: Text(
-                      user.name.isNotEmpty
-                          ? user.name[0].toUpperCase()
-                          : '?',
+                      user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
                       style: const TextStyle(
                         color: AppColors.primary,
                         fontSize: 32,
@@ -62,9 +62,10 @@ class ProfileScreen extends ConsumerWidget {
                 child: Text(
                   user.name,
                   style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold),
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -72,14 +73,43 @@ class ProfileScreen extends ConsumerWidget {
                 child: Text(
                   user.email,
                   style: const TextStyle(
-                      color: AppColors.textSecondary, fontSize: 14),
+                    color: AppColors.textSecondary,
+                    fontSize: 14,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
 
               const SizedBox(height: 32),
 
-              // KVKK / Gizlilik
+              _tile(
+                context,
+                icon: Icons.camera_alt_outlined,
+                label: '${StudioBrand.name} Instagram',
+                color: AppColors.primary,
+                onTap: () => _openUri(
+                  context,
+                  Uri.parse(StudioBrand.instagramUrl),
+                  'Instagram açılamadı.',
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              _tile(
+                context,
+                icon: Icons.phone_outlined,
+                label: 'Stüdyoyu ara: ${StudioBrand.phoneDisplay}',
+                color: AppColors.primary,
+                onTap: () => _openUri(
+                  context,
+                  Uri.parse('tel:${StudioBrand.phoneDial}'),
+                  'Telefon araması başlatılamadı.',
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
               _tile(
                 context,
                 icon: Icons.shield_outlined,
@@ -87,14 +117,12 @@ class ProfileScreen extends ConsumerWidget {
                 color: AppColors.primary,
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (_) => const KvkkRightsScreen()),
+                  MaterialPageRoute(builder: (_) => const KvkkRightsScreen()),
                 ),
               ),
 
               const SizedBox(height: 8),
 
-              // Çıkış Yap
               _tile(
                 context,
                 icon: Icons.logout_rounded,
@@ -105,12 +133,14 @@ class ProfileScreen extends ConsumerWidget {
                     context: context,
                     builder: (_) => AlertDialog(
                       backgroundColor: AppColors.surface,
-                      title: const Text('Çıkış Yap',
-                          style: TextStyle(color: Colors.white)),
+                      title: const Text(
+                        'Çıkış Yap',
+                        style: TextStyle(color: Colors.white),
+                      ),
                       content: const Text(
-                          'Çıkış yapmak istediğinize emin misiniz?',
-                          style:
-                              TextStyle(color: AppColors.textSecondary)),
+                        'Çıkış yapmak istediğinize emin misiniz?',
+                        style: TextStyle(color: AppColors.textSecondary),
+                      ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context, false),
@@ -118,8 +148,10 @@ class ProfileScreen extends ConsumerWidget {
                         ),
                         TextButton(
                           onPressed: () => Navigator.pop(context, true),
-                          child: const Text('Çıkış Yap',
-                              style: TextStyle(color: AppColors.error)),
+                          child: const Text(
+                            'Çıkış Yap',
+                            style: TextStyle(color: AppColors.error),
+                          ),
                         ),
                       ],
                     ),
@@ -134,6 +166,19 @@ class ProfileScreen extends ConsumerWidget {
         },
       ),
     );
+  }
+
+  Future<void> _openUri(
+    BuildContext context,
+    Uri uri,
+    String fallbackMessage,
+  ) async {
+    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!opened && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(fallbackMessage)),
+      );
+    }
   }
 
   Widget _tile(
@@ -158,12 +203,10 @@ class ProfileScreen extends ConsumerWidget {
               Expanded(
                 child: Text(
                   label,
-                  style: TextStyle(
-                      color: color ?? Colors.white, fontSize: 15),
+                  style: TextStyle(color: color ?? Colors.white, fontSize: 15),
                 ),
               ),
-              const Icon(Icons.chevron_right,
-                  color: AppColors.textMuted, size: 20),
+              const Icon(Icons.chevron_right, color: AppColors.textMuted, size: 20),
             ],
           ),
         ),

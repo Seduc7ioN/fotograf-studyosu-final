@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/router/app_router.dart';
 import 'core/constants/app_colors.dart';
+import 'core/constants/studio_brand.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -34,7 +35,7 @@ class FotografStudyosuApp extends ConsumerWidget {
     final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(
-      title: 'Fotoğraf Stüdyosu',
+      title: StudioBrand.name,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,

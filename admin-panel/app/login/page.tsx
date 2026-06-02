@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuth } from "@/hooks/useAuth";
+import { studioBrand } from "@/lib/brand";
 import toast from "react-hot-toast";
-import { Camera, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().email("Geçerli bir e-posta girin"),
@@ -62,11 +64,16 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-500 rounded-2xl mb-4">
-            <Camera className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-white">Stüdyo Admin</h1>
-          <p className="text-gray-400 mt-1">Yönetim paneline giriş yapın</p>
+          <Image
+            src="/lumeart-logo.svg"
+            alt={studioBrand.name}
+            width={320}
+            height={124}
+            priority
+            className="mx-auto mb-5 h-24 w-auto rounded-xl bg-white object-contain p-3"
+          />
+          <h1 className="text-2xl font-bold text-white">{studioBrand.adminTitle}</h1>
+          <p className="text-gray-400 mt-1">{studioBrand.panelSubtitle} girişi yapın</p>
         </div>
 
         <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800">

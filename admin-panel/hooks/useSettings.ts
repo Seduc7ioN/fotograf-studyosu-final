@@ -9,17 +9,19 @@ export type StudioSettings = {
   phone: string;
   address: string;
   website: string;
+  instagramUrl: string;
   defaultDownloadEnabled: boolean;
   defaultAlbumExpiryDays: number;
   maxUploadSizeMB: number;
 };
 
 export const defaultStudioSettings: StudioSettings = {
-  studioName: "Stüdyo Admin",
+  studioName: "Lume Art Wedding",
   contactEmail: "",
-  phone: "",
+  phone: "0 533 603 43 16",
   address: "",
-  website: "",
+  website: "https://www.instagram.com/lumeartwedding",
+  instagramUrl: "https://www.instagram.com/lumeartwedding",
   defaultDownloadEnabled: true,
   defaultAlbumExpiryDays: 30,
   maxUploadSizeMB: 30,

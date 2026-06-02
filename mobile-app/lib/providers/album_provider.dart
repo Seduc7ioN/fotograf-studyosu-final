@@ -20,8 +20,7 @@ final albumsProvider = StreamProvider<List<AlbumModel>>((ref) {
       .orderBy('createdAt', descending: true)
       .snapshots()
       .map((snap) => snap.docs
-          .map((d) => AlbumModel.fromFirestore(
-              d as DocumentSnapshot<Map<String, dynamic>>))
+          .map((d) => AlbumModel.fromFirestore(d))
           .toList());
 });
 
@@ -32,8 +31,7 @@ final albumProvider = StreamProvider.family<AlbumModel?, String>((ref, albumId) 
       .doc(albumId)
       .snapshots()
       .map((d) => d.exists
-          ? AlbumModel.fromFirestore(
-              d as DocumentSnapshot<Map<String, dynamic>>)
+          ? AlbumModel.fromFirestore(d)
           : null);
 });
 
@@ -47,8 +45,7 @@ final albumPhotosProvider =
       .orderBy('order')
       .snapshots()
       .map((snap) => snap.docs
-          .map((d) => PhotoModel.fromFirestore(
-              d as DocumentSnapshot<Map<String, dynamic>>))
+          .map((d) => PhotoModel.fromFirestore(d))
           .toList());
 });
 

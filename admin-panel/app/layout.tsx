@@ -1,13 +1,18 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
+import { studioBrand } from "@/lib/brand";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Stüdyo Admin",
-  description: "Fotoğraf Stüdyosu Yönetim Paneli",
+  title: studioBrand.adminTitle,
+  description: `${studioBrand.name} yönetim paneli`,
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({

@@ -18,8 +18,7 @@ final currentUserProvider = FutureProvider<UserModel?>((ref) async {
       .get();
 
   if (!doc.exists) return null;
-  return UserModel.fromFirestore(
-      doc as DocumentSnapshot<Map<String, dynamic>>);
+  return UserModel.fromFirestore(doc);
 });
 
 final authServiceProvider = Provider<AuthService>((ref) => AuthService());

@@ -7,11 +7,12 @@ const SETTINGS_COLLECTION = "app_settings";
 const SETTINGS_DOC = "studio";
 
 const defaultSettings = {
-  studioName: "Stüdyo Admin",
+  studioName: "Lume Art Wedding",
   contactEmail: "",
-  phone: "",
+  phone: "0 533 603 43 16",
   address: "",
-  website: "",
+  website: "https://www.instagram.com/lumeartwedding",
+  instagramUrl: "https://www.instagram.com/lumeartwedding",
   defaultDownloadEnabled: true,
   defaultAlbumExpiryDays: 30,
   maxUploadSizeMB: 30,
@@ -55,6 +56,7 @@ export async function PATCH(req: NextRequest) {
       phone: String(body.phone || "").trim(),
       address: String(body.address || "").trim(),
       website: String(body.website || "").trim(),
+      instagramUrl: String(body.instagramUrl || "").trim(),
       defaultDownloadEnabled: Boolean(body.defaultDownloadEnabled),
       defaultAlbumExpiryDays: Number(body.defaultAlbumExpiryDays || 30),
       maxUploadSizeMB: Number(body.maxUploadSizeMB || 30),

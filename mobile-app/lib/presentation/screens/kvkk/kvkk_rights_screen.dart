@@ -74,7 +74,7 @@ class _KvkkRightsScreenState extends ConsumerState<KvkkRightsScreen> {
     if (confirm != true) return;
 
     try {
-      final result = await _functions.httpsCallable('exportMyData').call({});
+      await _functions.httpsCallable('exportMyData').call({});
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
