@@ -28,3 +28,5 @@ mobile-app/ios/.symlinks/
 # General
 .DS_Store
 *.log
+
+.vercel
