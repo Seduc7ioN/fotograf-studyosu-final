@@ -17,7 +17,7 @@ export type StudioSettings = {
 
 export const defaultStudioSettings: StudioSettings = {
   studioName: "Lume Art Wedding",
-  contactEmail: "",
+  contactEmail: "lumeartwedding@gmail.com",
   phone: "0 533 603 43 16",
   address: "",
   website: "https://www.instagram.com/lumeartwedding",

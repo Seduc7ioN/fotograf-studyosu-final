@@ -8,7 +8,7 @@ const SETTINGS_DOC = "studio";
 
 const defaultSettings = {
   studioName: "Lume Art Wedding",
-  contactEmail: "",
+  contactEmail: "lumeartwedding@gmail.com",
   phone: "0 533 603 43 16",
   address: "",
   website: "https://www.instagram.com/lumeartwedding",
@@ -28,7 +28,6 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       ...defaultSettings,
-      contactEmail: admin.email || defaultSettings.contactEmail,
       ...(doc.exists ? doc.data() : {}),
     });
   } catch (error: any) {

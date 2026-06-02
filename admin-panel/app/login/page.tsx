@@ -85,7 +85,7 @@ export default function LoginPage() {
               <input
                 {...register("email")}
                 type="email"
-                placeholder="admin@studyo.com"
+                placeholder="lumeartwedding@gmail.com"
                 className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg
                            text-white placeholder-gray-500 focus:outline-none
                            focus:border-amber-500 focus:ring-1 focus:ring-amber-500
