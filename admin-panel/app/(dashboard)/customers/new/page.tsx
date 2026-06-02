@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import toast from "react-hot-toast";
-import { ArrowLeft, Copy, Loader2 } from "lucide-react";
+import { ArrowLeft, Copy, Loader2, Mail, MessageCircle } from "lucide-react";
 import { createCustomer } from "@/hooks/useCustomers";
 
 const schema = z.object({
@@ -32,6 +32,19 @@ E-posta: ${data.email || "musteri@example.com"}
 Şifre: ${data.password || "Musteri12345"}`;
 }
 
+function normalizeWhatsAppPhone(phone?: string) {
+  const digits = (phone || "").replace(/\D/g, "");
+  if (!digits) return "";
+  if (digits.startsWith("90") && digits.length >= 12) return digits;
+  if (digits.startsWith("0") && digits.length >= 11) return `90${digits.slice(1)}`;
+  if (digits.startsWith("5") && digits.length >= 10) return `90${digits}`;
+  return digits.length >= 10 ? digits : "";
+}
+
+function isUsableEmail(email?: string) {
+  return z.string().email().safeParse(email || "").success;
+}
+
 export default function NewCustomerPage() {
   const router = useRouter();
 
@@ -52,6 +65,15 @@ export default function NewCustomerPage() {
 
   const watchedValues = watch();
   const loginMessage = useMemo(() => buildLoginMessage(watchedValues), [watchedValues]);
+  const whatsappPhone = normalizeWhatsAppPhone(watchedValues.phone);
+  const whatsappUrl = whatsappPhone
+    ? `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(loginMessage)}`
+    : "";
+  const mailUrl = isUsableEmail(watchedValues.email)
+    ? `mailto:${watchedValues.email}?subject=${encodeURIComponent(
+        "Lume Art Wedding mobil uygulama giriş bilgileri"
+      )}&body=${encodeURIComponent(loginMessage)}`
+    : "";
 
   const copyLoginMessage = async () => {
     try {
@@ -153,15 +175,49 @@ export default function NewCustomerPage() {
               <h2 className="font-semibold text-white">Müşteriye Gönderilecek Giriş Bilgileri</h2>
               <p className="mt-1 text-xs text-gray-500">Formu doldurdukça metin otomatik güncellenir.</p>
             </div>
-            <button
-              type="button"
-              onClick={copyLoginMessage}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-700 px-3 py-2 text-xs
-                         font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
-            >
-              <Copy size={14} />
-              Kopyala
-            </button>
+            <div className="flex flex-wrap justify-end gap-2">
+              <a
+                href={whatsappUrl || undefined}
+                target="_blank"
+                rel="noreferrer"
+                aria-disabled={!whatsappUrl}
+                onClick={(event) => {
+                  if (!whatsappUrl) event.preventDefault();
+                }}
+                className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
+                  whatsappUrl
+                    ? "border-green-700/60 bg-green-950/20 text-green-200 hover:bg-green-900/30"
+                    : "cursor-not-allowed border-gray-800 text-gray-600"
+                }`}
+              >
+                <MessageCircle size={14} />
+                WhatsApp
+              </a>
+              <a
+                href={mailUrl || undefined}
+                aria-disabled={!mailUrl}
+                onClick={(event) => {
+                  if (!mailUrl) event.preventDefault();
+                }}
+                className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
+                  mailUrl
+                    ? "border-blue-700/60 bg-blue-950/20 text-blue-200 hover:bg-blue-900/30"
+                    : "cursor-not-allowed border-gray-800 text-gray-600"
+                }`}
+              >
+                <Mail size={14} />
+                E-posta
+              </a>
+              <button
+                type="button"
+                onClick={copyLoginMessage}
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-700 px-3 py-2 text-xs
+                           font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
+              >
+                <Copy size={14} />
+                Kopyala
+              </button>
+            </div>
           </div>
           <div className="p-5">
             <pre className="whitespace-pre-wrap rounded-lg border border-gray-800 bg-gray-950 p-4 text-sm leading-6 text-gray-200">
