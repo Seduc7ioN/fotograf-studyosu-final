@@ -40,6 +40,10 @@ export interface ScheduleEvent {
   startTime?: string;
   location?: string;
   note?: string;
+  customerId?: string;
+  customerName?: string;
+  albumId?: string;
+  albumTitle?: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -51,6 +55,10 @@ export interface CreateScheduleEventInput {
   startTime?: string;
   location?: string;
   note?: string;
+  customerId?: string;
+  customerName?: string;
+  albumId?: string;
+  albumTitle?: string;
 }
 
 export interface CreateUserInput {
@@ -62,7 +70,14 @@ export interface CreateUserInput {
   birthday?: string;
 }
 
-export type AlbumStatus = "draft" | "ready" | "archived";
+export type AlbumStatus =
+  | "draft"
+  | "ready"
+  | "in_selection"
+  | "retouching"
+  | "ready_to_deliver"
+  | "delivered"
+  | "archived";
 
 export interface Album {
   id: string;
@@ -111,7 +126,7 @@ export interface Photo {
   isDownloadable: boolean;
   order: number;
   createdAt: Timestamp;
-  selectionStatus?: "none" | "selected" | "approved" | "rejected"; // YENİ
+  selectionStatus?: "none" | "selected" | "retouch" | "approved" | "rejected"; // YENİ
 }
 
 export interface Favorite {

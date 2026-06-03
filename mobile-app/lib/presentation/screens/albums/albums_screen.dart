@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../data/models/models.dart';
 import '../../../providers/album_provider.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../core/constants/studio_brand.dart';
 import '../../constants/app_colors.dart';
 
 class AlbumsScreen extends ConsumerWidget {
@@ -118,23 +120,7 @@ class AlbumsScreen extends ConsumerWidget {
                   ),
                   data: (albums) {
                     if (albums.isEmpty) {
-                      return const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.photo_library_outlined,
-                              size: 56,
-                              color: AppColors.textMuted,
-                            ),
-                            SizedBox(height: 12),
-                            Text(
-                              'Henüz albüm yok',
-                              style: TextStyle(color: AppColors.textSecondary),
-                            ),
-                          ],
-                        ),
-                      );
+                      return const _EmptyAlbumsState();
                     }
 
                     return ListView.separated(
@@ -144,6 +130,99 @@ class AlbumsScreen extends ConsumerWidget {
                       itemBuilder: (_, i) => _AlbumCard(album: albums[i]),
                     );
                   },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyAlbumsState extends StatelessWidget {
+  const _EmptyAlbumsState();
+
+  Future<void> _open(String url) async {
+    final uri = Uri.parse(url);
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(22),
+          decoration: BoxDecoration(
+            color: AppColors.surface.withOpacity(0.94),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset('assets/images/lumeart_logo.png', width: 130),
+              const SizedBox(height: 18),
+              const Icon(
+                Icons.photo_library_outlined,
+                size: 44,
+                color: AppColors.textMuted,
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Henüz albümünüz yok',
+                style: TextStyle(
+                  color: AppColors.cream,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Albümünüz hazır olduğunda burada görünecek. Sorunuz varsa stüdyoya doğrudan ulaşabilirsiniz.',
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => _open(
+                        'https://wa.me/${StudioBrand.whatsappPhone}',
+                      ),
+                      icon: const Icon(Icons.chat_outlined, size: 17),
+                      label: const Text('WhatsApp'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.black,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _open('tel:${StudioBrand.phoneDial}'),
+                      icon: const Icon(Icons.phone_outlined, size: 17),
+                      label: const Text('Ara'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.cream,
+                        side: const BorderSide(color: AppColors.border),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              TextButton.icon(
+                onPressed: () => _open('mailto:${StudioBrand.email}'),
+                icon: const Icon(Icons.mail_outline, size: 17),
+                label: Text(StudioBrand.email),
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.textSecondary,
                 ),
               ),
             ],
@@ -246,6 +325,30 @@ class _AlbumCard extends StatelessWidget {
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
+                    ),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.14),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(
+                            color: AppColors.primary.withOpacity(0.25),
+                          ),
+                        ),
+                        child: Text(
+                          album.statusLabel,
+                          style: const TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
                     ),
                     Row(
                       children: [

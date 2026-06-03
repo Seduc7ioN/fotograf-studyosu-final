@@ -56,6 +56,10 @@ export async function createScheduleEvent(input: CreateScheduleEventInput) {
     startTime: input.startTime?.trim() || null,
     location: input.location?.trim() || null,
     note: input.note?.trim() || null,
+    customerId: input.customerId || null,
+    customerName: input.customerName?.trim() || null,
+    albumId: input.albumId || null,
+    albumTitle: input.albumTitle?.trim() || null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });

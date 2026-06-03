@@ -32,6 +32,7 @@ class _PhotoViewerScreenState extends ConsumerState<PhotoViewerScreen> {
   late int _currentIndex;
   late PageController _pageController;
   bool _showUI = true;
+  final Map<String, String> _localSelectionStatuses = {};
 
   @override
   void initState() {
@@ -65,6 +66,46 @@ class _PhotoViewerScreenState extends ConsumerState<PhotoViewerScreen> {
     );
   }
 
+  Future<void> _setSelectionStatus(String status) async {
+    final photo = widget.photos[_currentIndex];
+    setState(() => _localSelectionStatuses[photo.id] = status);
+    try {
+      await ref.read(photoSelectionServiceProvider).setSelectionStatus(
+            albumId: widget.albumId,
+            photoId: photo.id,
+            status: status,
+          );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_selectionSnackText(status)),
+          backgroundColor: AppColors.surfaceLight,
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Seçim kaydedilemedi. Lütfen tekrar deneyin.'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
+  }
+
+  String _selectionSnackText(String status) {
+    switch (status) {
+      case 'selected':
+        return 'Fotoğraf seçildi.';
+      case 'retouch':
+        return 'Rötuş isteği kaydedildi.';
+      case 'rejected':
+        return 'Fotoğraf beğenilmedi olarak işaretlendi.';
+      default:
+        return 'Seçim güncellendi.';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.photos.isEmpty) {
@@ -85,6 +126,8 @@ class _PhotoViewerScreenState extends ConsumerState<PhotoViewerScreen> {
     }
 
     final currentPhoto = widget.photos[_currentIndex];
+    final currentSelection =
+        _localSelectionStatuses[currentPhoto.id] ?? currentPhoto.selectionStatus;
     final isFav = ref.watch(isFavoriteProvider(
         (albumId: widget.albumId, photoId: currentPhoto.id)));
     final commentCountAsync = ref.watch(photoCommentCountProvider(
@@ -193,7 +236,84 @@ class _PhotoViewerScreenState extends ConsumerState<PhotoViewerScreen> {
                 ),
               ),
             ),
+
+            AnimatedOpacity(
+              opacity: _showUI ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 200),
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 0, 14, 16),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.72),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: Colors.white12),
+                      ),
+                      child: Row(
+                        children: [
+                          _SelectionButton(
+                            label: 'Seçtim',
+                            icon: Icons.check_circle_outline,
+                            active: currentSelection == 'selected',
+                            onTap: () => _setSelectionStatus('selected'),
+                          ),
+                          _SelectionButton(
+                            label: 'Rötuş',
+                            icon: Icons.auto_fix_high_outlined,
+                            active: currentSelection == 'retouch',
+                            onTap: () => _setSelectionStatus('retouch'),
+                          ),
+                          _SelectionButton(
+                            label: 'Beğenmedim',
+                            icon: Icons.close_rounded,
+                            active: currentSelection == 'rejected',
+                            onTap: () => _setSelectionStatus('rejected'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SelectionButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool active;
+  final VoidCallback onTap;
+
+  const _SelectionButton({
+    required this.label,
+    required this.icon,
+    required this.active,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: TextButton.icon(
+        onPressed: onTap,
+        icon: Icon(icon, size: 17),
+        label: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+        style: TextButton.styleFrom(
+          foregroundColor: active ? Colors.black : Colors.white,
+          backgroundColor: active ? AppColors.primary : Colors.white10,
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
+          textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       ),
     );

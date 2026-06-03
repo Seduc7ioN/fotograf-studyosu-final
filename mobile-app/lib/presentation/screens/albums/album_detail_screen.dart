@@ -234,6 +234,27 @@ class _PhotoGridItem extends ConsumerWidget {
               ),
             ),
 
+          if (photo.selectionLabel.isNotEmpty)
+            Positioned(
+              top: 4,
+              left: photo.uploadedByCustomer ? 28 : 4,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  photo.selectionLabel,
+                  style: const TextStyle(
+                    color: AppColors.background,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
+
           commentCount.maybeWhen(
             data: (count) => count > 0
                 ? Positioned(

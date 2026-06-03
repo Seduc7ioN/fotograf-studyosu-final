@@ -138,3 +138,23 @@ export async function deleteCustomer(customerId: string): Promise<void> {
     throw new Error(err.message || "Müşteri silinemedi.");
   }
 }
+
+export async function createPasswordResetLink(email: string): Promise<string> {
+  const token = await getAdminToken();
+  const res = await fetch("/api/customers/reset-password", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ email }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || "Şifre yenileme linki oluşturulamadı.");
+  }
+
+  return data.link;
+}

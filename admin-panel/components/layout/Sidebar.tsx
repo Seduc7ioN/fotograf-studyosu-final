@@ -8,6 +8,7 @@ import {
   FolderOpen,
   LayoutDashboard,
   LogOut,
+  MessageSquare,
   Settings,
   Upload,
   Users,
@@ -21,6 +22,7 @@ const navItems = [
   { href: "/agenda", icon: CalendarDays, label: "Ajanda" },
   { href: "/customers", icon: Users, label: "Müşteriler" },
   { href: "/albums", icon: FolderOpen, label: "Albümler" },
+  { href: "/notes", icon: MessageSquare, label: "Notlar" },
   { href: "/uploads", icon: Upload, label: "Yüklemeler" },
   { href: "/settings", icon: Settings, label: "Ayarlar" },
 ];

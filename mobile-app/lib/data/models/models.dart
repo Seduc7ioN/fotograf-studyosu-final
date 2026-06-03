@@ -80,6 +80,30 @@ class AlbumModel {
 
   bool get isExpired =>
       expiresAt != null && expiresAt!.isBefore(DateTime.now());
+
+  bool get isCustomerVisible => const [
+        'ready',
+        'in_selection',
+        'retouching',
+        'ready_to_deliver',
+        'delivered',
+      ].contains(status);
+
+  String get statusLabel {
+    switch (status) {
+      case 'retouching':
+        return 'Rötuşta';
+      case 'ready_to_deliver':
+        return 'Teslime hazır';
+      case 'delivered':
+        return 'Teslim edildi';
+      case 'in_selection':
+      case 'ready':
+        return 'Seçim bekliyor';
+      default:
+        return 'Hazırlanıyor';
+    }
+  }
 }
 
 // ─── PhotoModel ──────────────────────────────────────────────────────────────
@@ -92,6 +116,7 @@ class PhotoModel {
   final bool isDownloadable;
   final int order;
   final bool uploadedByCustomer;
+  final String selectionStatus;
 
   const PhotoModel({
     required this.id,
@@ -101,6 +126,7 @@ class PhotoModel {
     required this.isDownloadable,
     required this.order,
     required this.uploadedByCustomer,
+    required this.selectionStatus,
   });
 
   factory PhotoModel.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -113,7 +139,23 @@ class PhotoModel {
       isDownloadable: data['isDownloadable'] as bool? ?? false,
       order: data['order'] as int? ?? 0,
       uploadedByCustomer: data['uploadedByCustomer'] as bool? ?? false,
+      selectionStatus: data['selectionStatus'] as String? ?? 'none',
     );
+  }
+
+  String get selectionLabel {
+    switch (selectionStatus) {
+      case 'selected':
+        return 'Seçtim';
+      case 'retouch':
+        return 'Rötuş istiyorum';
+      case 'rejected':
+        return 'Beğenmedim';
+      case 'approved':
+        return 'Onaylandı';
+      default:
+        return '';
+    }
   }
 }
 

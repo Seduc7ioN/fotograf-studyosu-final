@@ -14,7 +14,7 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Album, CreateAlbumInput } from "@/lib/types";
+import { Album, CreateAlbumInput, Photo } from "@/lib/types";
 import { useEffect, useState } from "react";
 
 export function useAlbums(customerId?: string) {
@@ -58,7 +58,7 @@ export function useAlbums(customerId?: string) {
 }
 
 export function useAlbumPhotos(albumId: string) {
-  const [photos, setPhotos] = useState<any[]>([]);
+  const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -76,7 +76,7 @@ export function useAlbumPhotos(albumId: string) {
         const data = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-        }));
+        } as Photo));
         setPhotos(data);
         setError(null);
         setLoading(false);

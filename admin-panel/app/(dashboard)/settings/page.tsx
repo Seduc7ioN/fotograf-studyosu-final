@@ -6,6 +6,7 @@ import {
   AtSign,
   Building2,
   Loader2,
+  MessageSquare,
   Save,
   ShieldCheck,
   SlidersHorizontal,
@@ -26,6 +27,19 @@ export default function SettingsPage() {
     value: StudioSettings[K]
   ) => {
     setSettings((current) => ({ ...current, [key]: value }));
+  };
+
+  const updateTemplate = (
+    key: keyof StudioSettings["messageTemplates"],
+    value: string
+  ) => {
+    setSettings((current) => ({
+      ...current,
+      messageTemplates: {
+        ...current.messageTemplates,
+        [key]: value,
+      },
+    }));
   };
 
   const handleSave = async () => {
@@ -177,6 +191,62 @@ export default function SettingsPage() {
                   className={inputClass}
                 />
               </Field>
+            </div>
+          </section>
+
+          <section className="rounded-xl border border-gray-800 bg-gray-900">
+            <div className="flex items-center gap-3 border-b border-gray-800 px-6 py-4">
+              <MessageSquare className="h-5 w-5 text-amber-400" />
+              <div>
+                <h2 className="font-semibold text-white">Mesaj Şablonları</h2>
+                <p className="text-xs text-gray-500">
+                  WhatsApp ve e-posta ile gönderilecek hazır metinler. Kullanılabilir alanlar: {"{name}"}, {"{email}"}, {"{password}"}, {"{date}"}.
+                </p>
+              </div>
+            </div>
+            <div className="grid gap-4 p-6 md:grid-cols-2">
+              <Field label="Müşteri giriş bilgisi">
+                <textarea
+                  value={settings.messageTemplates.customerLogin}
+                  onChange={(e) => updateTemplate("customerLogin", e.target.value)}
+                  rows={6}
+                  className={`${inputClass} resize-none`}
+                />
+              </Field>
+              <Field label="Albüm hazır">
+                <textarea
+                  value={settings.messageTemplates.albumReady}
+                  onChange={(e) => updateTemplate("albumReady", e.target.value)}
+                  rows={6}
+                  className={`${inputClass} resize-none`}
+                />
+              </Field>
+              <Field label="Randevu hatırlatma">
+                <textarea
+                  value={settings.messageTemplates.appointmentReminder}
+                  onChange={(e) => updateTemplate("appointmentReminder", e.target.value)}
+                  rows={5}
+                  className={`${inputClass} resize-none`}
+                />
+              </Field>
+              <Field label="Ödeme hatırlatma">
+                <textarea
+                  value={settings.messageTemplates.paymentReminder}
+                  onChange={(e) => updateTemplate("paymentReminder", e.target.value)}
+                  rows={5}
+                  className={`${inputClass} resize-none`}
+                />
+              </Field>
+              <div className="md:col-span-2">
+                <Field label="Teşekkür mesajı">
+                  <textarea
+                    value={settings.messageTemplates.thankYou}
+                    onChange={(e) => updateTemplate("thankYou", e.target.value)}
+                    rows={4}
+                    className={`${inputClass} resize-none`}
+                  />
+                </Field>
+              </div>
             </div>
           </section>
 

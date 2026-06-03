@@ -10,6 +10,13 @@ export type StudioSettings = {
   address: string;
   website: string;
   instagramUrl: string;
+  messageTemplates: {
+    customerLogin: string;
+    albumReady: string;
+    appointmentReminder: string;
+    paymentReminder: string;
+    thankYou: string;
+  };
   defaultDownloadEnabled: boolean;
   defaultAlbumExpiryDays: number;
   maxUploadSizeMB: number;
@@ -22,6 +29,18 @@ export const defaultStudioSettings: StudioSettings = {
   address: "",
   website: "https://www.instagram.com/lumeartwedding",
   instagramUrl: "https://www.instagram.com/lumeartwedding",
+  messageTemplates: {
+    customerLogin:
+      "Merhaba {name},\nFotoğraflarınıza erişmek için mobil uygulamaya aşağıdaki bilgilerle giriş yapabilirsiniz:\n\nE-posta: {email}\nŞifre: {password}",
+    albumReady:
+      "Merhaba {name},\nAlbümünüz mobil uygulamada hazır. Giriş yaparak fotoğraflarınızı inceleyebilirsiniz.",
+    appointmentReminder:
+      "Merhaba {name},\n{date} tarihli çekim randevunuzu hatırlatmak isteriz. Görüşmek üzere.",
+    paymentReminder:
+      "Merhaba {name},\nAlbüm/çekim süreciniz için kalan ödeme hakkında bilgi vermek istedik.",
+    thankYou:
+      "Merhaba {name},\nLume Art Wedding'i tercih ettiğiniz için teşekkür ederiz.",
+  },
   defaultDownloadEnabled: true,
   defaultAlbumExpiryDays: 30,
   maxUploadSizeMB: 30,

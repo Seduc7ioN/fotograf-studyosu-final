@@ -18,6 +18,15 @@ import { publishAlbum, updateAlbum, useAlbumPhotos, useAlbums } from "@/hooks/us
 import { useAlbumComments } from "@/hooks/useComments";
 import { db } from "@/lib/firebase";
 import { deleteDoc, doc } from "firebase/firestore";
+import {
+  albumStatusMeta,
+  albumStatusOptions,
+  photoSelectionLabel,
+  photoSelectionTone,
+} from "@/lib/album-workflow";
+import { AlbumStatus, Photo } from "@/lib/types";
+
+type PhotoFilter = "all" | NonNullable<Photo["selectionStatus"]>;
 
 export default function AlbumDetailPage({
   params,
@@ -31,6 +40,7 @@ export default function AlbumDetailPage({
   const { comments, loading: commentsLoading, error: commentsError } =
     useAlbumComments(albumId);
   const [showUploader, setShowUploader] = useState(false);
+  const [photoFilter, setPhotoFilter] = useState<PhotoFilter>("all");
 
   const commentsByPhoto = useMemo(() => {
     const map = new Map<string, typeof comments>();
@@ -48,9 +58,33 @@ export default function AlbumDetailPage({
     [photos]
   );
 
+  const selectionSummary = useMemo(() => {
+    return photos.reduce(
+      (summary, photo) => {
+        const status = photo.selectionStatus ?? "none";
+        summary[status] = (summary[status] ?? 0) + 1;
+        return summary;
+      },
+      {
+        none: 0,
+        selected: 0,
+        retouch: 0,
+        approved: 0,
+        rejected: 0,
+      } as Record<NonNullable<Photo["selectionStatus"]>, number>
+    );
+  }, [photos]);
+
+  const filteredPhotos = useMemo(() => {
+    if (photoFilter === "all") return photos;
+    return photos.filter((photo) => (photo.selectionStatus ?? "none") === photoFilter);
+  }, [photoFilter, photos]);
+
   if (!album) {
     return <div className="py-12 text-center text-[#8d7462]">Albüm bulunamadı.</div>;
   }
+
+  const statusMeta = albumStatusMeta(album.status);
 
   const handleToggleDownload = async () => {
     try {
@@ -67,6 +101,15 @@ export default function AlbumDetailPage({
       toast.success("Albüm müşteriye açıldı.");
     } catch {
       toast.error("Yayınlama başarısız.");
+    }
+  };
+
+  const handleStatusChange = async (status: AlbumStatus) => {
+    try {
+      await updateAlbum(albumId, { status });
+      toast.success("Albüm durumu güncellendi.");
+    } catch {
+      toast.error("Durum güncellenemedi.");
     }
   };
 
@@ -96,13 +139,9 @@ export default function AlbumDetailPage({
                 {album.title}
               </h1>
               <span
-                className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-                  album.status === "ready"
-                    ? "bg-green-400/10 text-green-300"
-                    : "bg-[#E8611A]/15 text-[#ff8a45]"
-                }`}
+                className={`rounded-full px-2 py-0.5 text-xs font-semibold ${statusMeta.tone}`}
               >
-                {album.status === "ready" ? "Yayında" : "Taslak"}
+                {statusMeta.label}
               </span>
             </div>
             <p className="mt-1 text-sm text-[#8d7462]">
@@ -113,6 +152,18 @@ export default function AlbumDetailPage({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <select
+            value={album.status}
+            onChange={(event) => handleStatusChange(event.target.value as AlbumStatus)}
+            className="rounded-lg border border-[#433126] bg-[#1f1813] px-3 py-2 text-sm text-[#d8c7b8] outline-none transition hover:border-[#E8611A]/70 focus:border-[#E8611A]"
+            aria-label="Albüm durumu"
+          >
+            {albumStatusOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
           <button
             onClick={handleToggleDownload}
             className="flex items-center gap-2 rounded-lg border border-[#433126] bg-[#1f1813] px-3 py-2 text-sm text-[#d8c7b8] transition hover:border-[#E8611A]/70 hover:text-[#ff8a45]"
@@ -136,7 +187,7 @@ export default function AlbumDetailPage({
             <Upload size={16} />
             Fotoğraf Ekle
           </button>
-          {album.status !== "ready" && (
+          {!["ready", "in_selection", "retouching", "ready_to_deliver", "delivered"].includes(album.status) && (
             <button
               onClick={handlePublish}
               className="flex items-center gap-2 rounded-lg bg-[#E8611A] px-4 py-2 text-sm font-bold text-[#170f0a] transition hover:bg-[#ff7a32]"
@@ -156,9 +207,38 @@ export default function AlbumDetailPage({
       )}
 
       <section className="rounded-xl border border-[#433126] bg-[#1f1813] p-5">
-        <h2 className="mb-4 font-semibold text-[#f7f0e8]">
-          Fotoğraflar ({photos.length})
-        </h2>
+        <div className="mb-4 flex flex-col justify-between gap-3 lg:flex-row lg:items-center">
+          <div>
+            <h2 className="font-semibold text-[#f7f0e8]">
+              Fotoğraflar ({filteredPhotos.length}/{photos.length})
+            </h2>
+            <p className="mt-1 text-xs text-[#8d7462]">
+              Seçildi {selectionSummary.selected} · Rötuş {selectionSummary.retouch} · Beğenmedi {selectionSummary.rejected}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {[
+              ["all", "Tümü"],
+              ["selected", "Seçilen"],
+              ["retouch", "Rötuş"],
+              ["rejected", "Beğenmedi"],
+              ["none", "Bekleyen"],
+            ].map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setPhotoFilter(value as PhotoFilter)}
+                className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                  photoFilter === value
+                    ? "border-[#E8611A] bg-[#E8611A]/15 text-[#ff8a45]"
+                    : "border-[#433126] text-[#b9a99b] hover:border-[#E8611A]/70 hover:text-[#ff8a45]"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {loading ? (
           <div className="flex items-center justify-center gap-2 py-8 text-[#8d7462]">
@@ -178,7 +258,7 @@ export default function AlbumDetailPage({
           </div>
         ) : (
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
-            {photos.map((photo) => {
+            {filteredPhotos.map((photo) => {
               const photoComments = commentsByPhoto.get(photo.id) ?? [];
               return (
                 <div
@@ -201,6 +281,14 @@ export default function AlbumDetailPage({
                     <div className="absolute left-2 top-2 flex items-center gap-1 rounded-full bg-[#E8611A] px-2 py-1 text-[11px] font-bold text-[#170f0a]">
                       <MessageSquare size={12} />
                       {photoComments.length}
+                    </div>
+                  )}
+
+                  {photo.selectionStatus && photo.selectionStatus !== "none" && (
+                    <div
+                      className={`absolute bottom-2 left-2 rounded-full px-2 py-1 text-[11px] font-bold ${photoSelectionTone(photo.selectionStatus)}`}
+                    >
+                      {photoSelectionLabel(photo.selectionStatus)}
                     </div>
                   )}
 

@@ -9,6 +9,7 @@ import {
   CalendarDays,
   FolderOpen,
   Loader2,
+  MessageSquare,
   Plus,
   Trash2,
   TrendingUp,
@@ -16,6 +17,8 @@ import {
   Users,
 } from "lucide-react";
 import { createIncomeRecord, deleteIncomeRecord, useIncomeRecords } from "@/hooks/useFinance";
+import { useAllComments } from "@/hooks/useComments";
+import { useScheduleEvents } from "@/hooks/useScheduleEvents";
 import { db } from "@/lib/firebase";
 import { Album, User } from "@/lib/types";
 
@@ -56,6 +59,10 @@ function localDateInputValue(date = new Date()) {
   return `${year}-${month}-${day}`;
 }
 
+function eventDateKey(date = new Date()) {
+  return localDateInputValue(date);
+}
+
 function countSince(items: User[], start: Date) {
   return items.filter((item) => {
     const createdAt = toDate(item.createdAt);
@@ -65,6 +72,8 @@ function countSince(items: User[], start: Date) {
 
 export default function DashboardPage() {
   const { records, loading: incomeLoading, error: incomeError } = useIncomeRecords();
+  const { comments } = useAllComments(5);
+  const { events } = useScheduleEvents();
   const [customers, setCustomers] = useState<User[]>([]);
   const [albums, setAlbums] = useState<Album[]>([]);
   const [recentAlbums, setRecentAlbums] = useState<Album[]>([]);
@@ -255,6 +264,11 @@ export default function DashboardPage() {
     { label: "Aylık Kazanç", value: money.format(report.revenue.month), icon: TurkishLira },
   ];
 
+  const todayEvents = useMemo(
+    () => events.filter((event) => event.eventDateKey === eventDateKey()).slice(0, 5),
+    [events]
+  );
+
   return (
     <div className="space-y-6">
       <div>
@@ -302,6 +316,53 @@ export default function DashboardPage() {
               <p className="mt-2 text-xl font-bold text-[#f7f0e8]">{item.value}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-2">
+        <div className="rounded-xl border border-[#433126] bg-[#1f1813]">
+          <div className="border-b border-[#433126] px-5 py-4">
+            <h2 className="font-semibold text-[#f7f0e8]">Bugünün İşleri</h2>
+            <p className="mt-1 text-xs text-[#8d7462]">Ajandadaki çekim ve randevular.</p>
+          </div>
+          <div className="divide-y divide-[#433126]">
+            {todayEvents.length === 0 ? (
+              <p className="p-5 text-sm text-[#8d7462]">Bugün için plan yok.</p>
+            ) : (
+              todayEvents.map((event) => (
+                <Link key={event.id} href="/agenda" className="block p-4 transition hover:bg-[#281d16]/50">
+                  <p className="text-sm font-semibold text-[#f7f0e8]">{event.title}</p>
+                  <p className="mt-1 text-xs text-[#8d7462]">
+                    {event.startTime || "Saat girilmedi"}
+                    {event.customerName ? ` · ${event.customerName}` : ""}
+                    {event.albumTitle ? ` · ${event.albumTitle}` : ""}
+                  </p>
+                </Link>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-[#433126] bg-[#1f1813]">
+          <div className="border-b border-[#433126] px-5 py-4">
+            <h2 className="font-semibold text-[#f7f0e8]">Son Müşteri Notları</h2>
+            <p className="mt-1 text-xs text-[#8d7462]">Mobil uygulamadan gelen rötuş istekleri.</p>
+          </div>
+          <div className="divide-y divide-[#433126]">
+            {comments.length === 0 ? (
+              <p className="p-5 text-sm text-[#8d7462]">Henüz yeni not yok.</p>
+            ) : (
+              comments.map((comment) => (
+                <Link key={comment.id} href={`/albums/${comment.albumId}`} className="flex gap-3 p-4 transition hover:bg-[#281d16]/50">
+                  <MessageSquare className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#ff8a45]" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-[#f7f0e8]">{comment.customerName}</p>
+                    <p className="mt-1 line-clamp-2 text-xs text-[#8d7462]">{comment.text}</p>
+                  </div>
+                </Link>
+              ))
+            )}
+          </div>
         </div>
       </section>
 

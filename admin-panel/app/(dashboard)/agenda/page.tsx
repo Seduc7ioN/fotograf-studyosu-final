@@ -20,6 +20,8 @@ import {
   useScheduleEvents,
 } from "@/hooks/useScheduleEvents";
 import { ScheduleEvent } from "@/lib/types";
+import { useAlbums } from "@/hooks/useAlbums";
+import { useCustomers } from "@/hooks/useCustomers";
 
 type Holiday = {
   date: string;
@@ -126,9 +128,13 @@ export default function AgendaPage() {
     startTime: "",
     location: "",
     note: "",
+    customerId: "",
+    albumId: "",
   });
 
   const { events, loading, error } = useScheduleEvents();
+  const { customers } = useCustomers();
+  const { albums } = useAlbums();
 
   const holidays = useMemo(
     () => getOfficialHolidays(viewDate.getFullYear()),
@@ -161,6 +167,7 @@ export default function AgendaPage() {
     const date = localDateFromKey(holiday.date);
     return date.getMonth() === viewDate.getMonth();
   });
+  const customerAlbums = albums.filter((album) => album.customerId === form.customerId);
 
   const changeMonth = (amount: number) => {
     setViewDate((current) => new Date(current.getFullYear(), current.getMonth() + amount, 1));
@@ -182,6 +189,8 @@ export default function AgendaPage() {
 
     setSaving(true);
     try {
+      const selectedCustomer = customers.find((customer) => customer.id === form.customerId);
+      const selectedAlbum = albums.find((album) => album.id === form.albumId);
       await createScheduleEvent({
         title: form.title,
         eventDate: localDateFromKey(selectedKey, form.startTime),
@@ -189,8 +198,12 @@ export default function AgendaPage() {
         startTime: form.startTime,
         location: form.location,
         note: form.note,
+        customerId: selectedCustomer?.id,
+        customerName: selectedCustomer?.name,
+        albumId: selectedAlbum?.id,
+        albumTitle: selectedAlbum?.title,
       });
-      setForm({ title: "", startTime: "", location: "", note: "" });
+      setForm({ title: "", startTime: "", location: "", note: "", customerId: "", albumId: "" });
       toast.success("Ajanda kaydı eklendi.");
     } catch (err) {
       console.error("Schedule event could not be saved:", err);
@@ -373,6 +386,49 @@ export default function AgendaPage() {
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold text-[#d8c7b8]">
+                    Müşteri
+                  </label>
+                  <select
+                    value={form.customerId}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        customerId: event.target.value,
+                        albumId: "",
+                      }))
+                    }
+                    className="w-full rounded-lg border border-[#433126] bg-[#100a07] px-3 py-2.5 text-sm text-[#f7f0e8] outline-none transition focus:border-[#E8611A]"
+                  >
+                    <option value="">Müşteri seçilmedi</option>
+                    {customers.map((customer) => (
+                      <option key={customer.id} value={customer.id}>
+                        {customer.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold text-[#d8c7b8]">
+                    Albüm
+                  </label>
+                  <select
+                    value={form.albumId}
+                    onChange={(event) =>
+                      setForm((current) => ({ ...current, albumId: event.target.value }))
+                    }
+                    disabled={!form.customerId}
+                    className="w-full rounded-lg border border-[#433126] bg-[#100a07] px-3 py-2.5 text-sm text-[#f7f0e8] outline-none transition focus:border-[#E8611A] disabled:opacity-50"
+                  >
+                    <option value="">Albüm seçilmedi</option>
+                    {customerAlbums.map((album) => (
+                      <option key={album.id} value={album.id}>
+                        {album.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold text-[#d8c7b8]">
                     Saat
                   </label>
                   <input
@@ -450,6 +506,16 @@ export default function AgendaPage() {
                             <span className="inline-flex items-center gap-1">
                               <MapPin className="h-3.5 w-3.5 text-[#ff8a45]" />
                               {event.location}
+                            </span>
+                          )}
+                          {event.customerName && (
+                            <span className="inline-flex items-center gap-1">
+                              Müşteri: {event.customerName}
+                            </span>
+                          )}
+                          {event.albumTitle && (
+                            <span className="inline-flex items-center gap-1">
+                              Albüm: {event.albumTitle}
                             </span>
                           )}
                         </div>

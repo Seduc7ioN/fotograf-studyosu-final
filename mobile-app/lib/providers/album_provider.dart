@@ -16,10 +16,12 @@ final albumsProvider = StreamProvider<List<AlbumModel>>((ref) {
   return _db
       .collection('albums')
       .where('customerId', isEqualTo: uid)
-      .where('status', isEqualTo: 'ready')
       .snapshots()
       .map((snap) {
-    final albums = snap.docs.map((d) => AlbumModel.fromFirestore(d)).toList();
+    final albums = snap.docs
+        .map((d) => AlbumModel.fromFirestore(d))
+        .where((album) => album.isCustomerVisible && !album.isExpired)
+        .toList();
     albums.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return albums;
   });
@@ -62,3 +64,21 @@ final photoUrlProvider = FutureProvider.family<String?,
     return null;
   }
 });
+
+final photoSelectionServiceProvider =
+    Provider<PhotoSelectionService>((ref) => PhotoSelectionService());
+
+class PhotoSelectionService {
+  Future<void> setSelectionStatus({
+    required String albumId,
+    required String photoId,
+    required String status,
+  }) async {
+    await _db
+        .collection('albums')
+        .doc(albumId)
+        .collection('photos')
+        .doc(photoId)
+        .update({'selectionStatus': status});
+  }
+}
