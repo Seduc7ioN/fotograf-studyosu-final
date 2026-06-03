@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../data/models/models.dart';
 import '../../providers/auth_provider.dart';
-import '../../presentation/screens/splash/splash_screen.dart';
-import '../../presentation/screens/auth/login_screen.dart';
-import '../../presentation/screens/albums/albums_screen.dart';
 import '../../presentation/screens/albums/album_detail_screen.dart';
-import '../../presentation/screens/photo/photo_viewer_screen.dart';
+import '../../presentation/screens/albums/albums_screen.dart';
+import '../../presentation/screens/auth/login_screen.dart';
 import '../../presentation/screens/favorites/favorites_screen.dart';
+import '../../presentation/screens/photo/photo_viewer_screen.dart';
 import '../../presentation/screens/profile/profile_screen.dart';
 import '../../presentation/screens/share/qr_share_screen.dart';
-import '../../data/models/models.dart';
+import '../../presentation/screens/splash/splash_screen.dart';
+import '../constants/app_colors.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -24,7 +25,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final isOnAuth = loc == '/login';
       final isOnShare = loc.startsWith('/share/');
 
-      // Share linkleri login gerektirmez
       if (isOnShare) return null;
       if (!isLoggedIn && !isOnAuth) return '/login';
       if (isLoggedIn && isOnAuth) return '/albums';
@@ -39,11 +39,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/login',
         builder: (_, __) => const LoginScreen(),
       ),
-      // Share/QR deep link — login gerektirmez
       GoRoute(
         path: '/share/:token',
-        builder: (_, state) =>
-            QRShareScreen(token: state.pathParameters['token']!),
+        builder: (_, state) => QRShareScreen(
+          token: state.pathParameters['token']!,
+        ),
       ),
       ShellRoute(
         builder: (context, state, child) => MainShell(child: child),
@@ -100,8 +100,9 @@ class MainShell extends StatelessWidget {
       body: child,
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentIndex,
-        backgroundColor: const Color(0xFF1A1A1A),
-        indicatorColor: const Color(0xFFF59E0B).withOpacity(0.15),
+        backgroundColor: AppColors.coffee,
+        indicatorColor: AppColors.primary.withOpacity(0.18),
+        surfaceTintColor: AppColors.coffee,
         onDestinationSelected: (index) {
           switch (index) {
             case 0:
@@ -115,17 +116,17 @@ class MainShell extends StatelessWidget {
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.photo_library_outlined),
-            selectedIcon: Icon(Icons.photo_library, color: Color(0xFFF59E0B)),
+            selectedIcon: Icon(Icons.photo_library, color: AppColors.primary),
             label: 'Albümlerim',
           ),
           NavigationDestination(
             icon: Icon(Icons.favorite_outline),
-            selectedIcon: Icon(Icons.favorite, color: Color(0xFFF59E0B)),
+            selectedIcon: Icon(Icons.favorite, color: AppColors.primary),
             label: 'Favoriler',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person, color: Color(0xFFF59E0B)),
+            selectedIcon: Icon(Icons.person, color: AppColors.primary),
             label: 'Profil',
           ),
         ],

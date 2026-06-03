@@ -19,20 +19,18 @@ final albumsProvider = StreamProvider<List<AlbumModel>>((ref) {
       .where('status', isEqualTo: 'ready')
       .orderBy('createdAt', descending: true)
       .snapshots()
-      .map((snap) => snap.docs
-          .map((d) => AlbumModel.fromFirestore(d))
-          .toList());
+      .map(
+          (snap) => snap.docs.map((d) => AlbumModel.fromFirestore(d)).toList());
 });
 
 // Tek albüm (detay sayfası için)
-final albumProvider = StreamProvider.family<AlbumModel?, String>((ref, albumId) {
+final albumProvider =
+    StreamProvider.family<AlbumModel?, String>((ref, albumId) {
   return _db
       .collection('albums')
       .doc(albumId)
       .snapshots()
-      .map((d) => d.exists
-          ? AlbumModel.fromFirestore(d)
-          : null);
+      .map((d) => d.exists ? AlbumModel.fromFirestore(d) : null);
 });
 
 // Albüm fotoğrafları
@@ -44,14 +42,12 @@ final albumPhotosProvider =
       .collection('photos')
       .orderBy('order')
       .snapshots()
-      .map((snap) => snap.docs
-          .map((d) => PhotoModel.fromFirestore(d))
-          .toList());
+      .map(
+          (snap) => snap.docs.map((d) => PhotoModel.fromFirestore(d)).toList());
 });
 
 // Fotoğraf için güvenli görüntüleme URL'i (signed URL)
-final photoUrlProvider = FutureProvider.family<
-    String?,
+final photoUrlProvider = FutureProvider.family<String?,
     ({String albumId, String photoId, bool isThumbnail})>((ref, params) async {
   try {
     final result = await _fn.httpsCallable('getSignedPhotoUrl').call({

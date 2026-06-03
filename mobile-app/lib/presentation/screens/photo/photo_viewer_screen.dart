@@ -6,9 +6,11 @@ import 'package:photo_view/photo_view_gallery.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../providers/album_provider.dart';
+import '../../../providers/comment_provider.dart';
 import '../../../providers/favorite_provider.dart';
 import '../../../data/models/models.dart';
 import '../../constants/app_colors.dart';
+import '../albums/comments_sheet.dart';
 
 class PhotoViewerScreen extends ConsumerStatefulWidget {
   final List<PhotoModel> photos;
@@ -50,6 +52,19 @@ class _PhotoViewerScreenState extends ConsumerState<PhotoViewerScreen> {
 
   void _toggleUI() => setState(() => _showUI = !_showUI);
 
+  void _openComments(String photoId) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      useSafeArea: true,
+      builder: (_) => CommentsSheet(
+        albumId: widget.albumId,
+        photoId: photoId,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.photos.isEmpty) {
@@ -72,6 +87,9 @@ class _PhotoViewerScreenState extends ConsumerState<PhotoViewerScreen> {
     final currentPhoto = widget.photos[_currentIndex];
     final isFav = ref.watch(isFavoriteProvider(
         (albumId: widget.albumId, photoId: currentPhoto.id)));
+    final commentCountAsync = ref.watch(photoCommentCountProvider(
+      (albumId: widget.albumId, photoId: currentPhoto.id),
+    ));
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -112,15 +130,56 @@ class _PhotoViewerScreenState extends ConsumerState<PhotoViewerScreen> {
                     const Spacer(),
                     Text(
                       '${_currentIndex + 1} / ${widget.photos.length}',
-                      style: const TextStyle(
-                          color: Colors.white70, fontSize: 14),
+                      style:
+                          const TextStyle(color: Colors.white70, fontSize: 14),
                     ),
                     const Spacer(),
                     IconButton(
+                      icon: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          const Icon(
+                            Icons.mode_comment_outlined,
+                            color: Colors.white,
+                            size: 25,
+                          ),
+                          commentCountAsync.maybeWhen(
+                            data: (count) => count > 0
+                                ? Positioned(
+                                    right: -6,
+                                    top: -6,
+                                    child: Container(
+                                      constraints: const BoxConstraints(
+                                        minWidth: 16,
+                                        minHeight: 16,
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 4),
+                                      decoration: const BoxDecoration(
+                                        color: AppColors.primary,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Text(
+                                        count > 9 ? '9+' : '$count',
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          color: AppColors.background,
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : const SizedBox.shrink(),
+                            orElse: () => const SizedBox.shrink(),
+                          ),
+                        ],
+                      ),
+                      onPressed: () => _openComments(currentPhoto.id),
+                    ),
+                    IconButton(
                       icon: Icon(
-                        isFav
-                            ? Icons.favorite
-                            : Icons.favorite_border_rounded,
+                        isFav ? Icons.favorite : Icons.favorite_border_rounded,
                         color: isFav ? AppColors.primary : Colors.white,
                         size: 26,
                       ),
@@ -160,8 +219,7 @@ class _PhotoItem extends ConsumerWidget {
               imageProvider: NetworkImage(url),
               minScale: PhotoViewComputedScale.contained,
               maxScale: PhotoViewComputedScale.covered * 3,
-              backgroundDecoration:
-                  const BoxDecoration(color: Colors.black),
+              backgroundDecoration: const BoxDecoration(color: Colors.black),
               loadingBuilder: (_, __) => const Center(
                 child: CircularProgressIndicator(color: AppColors.primary),
               ),
@@ -178,8 +236,7 @@ class _PhotoItem extends ConsumerWidget {
         child: CircularProgressIndicator(color: AppColors.primary),
       ),
       error: (_, __) => const Center(
-        child: Icon(Icons.error_outline,
-            color: Colors.white38, size: 56),
+        child: Icon(Icons.error_outline, color: Colors.white38, size: 56),
       ),
     );
   }

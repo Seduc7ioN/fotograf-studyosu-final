@@ -167,7 +167,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                       size: 20,
                                     ),
                                     onPressed: () => setState(
-                                      () => _obscurePassword = !_obscurePassword,
+                                      () =>
+                                          _obscurePassword = !_obscurePassword,
                                     ),
                                   ),
                                   validator: (v) {
@@ -291,7 +292,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+              borderSide:
+                  const BorderSide(color: AppColors.primary, width: 1.5),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),

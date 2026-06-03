@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 
+import '../../../data/models/models.dart';
+import '../../../providers/auth_provider.dart';
+import '../../../providers/comment_provider.dart';
 import '../../constants/app_colors.dart';
 
-/// YENİ — PicPeak'ten ilham
-/// Müşteri albüm veya fotoğraf hakkında yorum bırakabilir.
 class CommentsSheet extends ConsumerStatefulWidget {
   final String albumId;
-  final String? photoId;
+  final String photoId;
 
-  const CommentsSheet({super.key, required this.albumId, this.photoId});
+  const CommentsSheet({
+    super.key,
+    required this.albumId,
+    required this.photoId,
+  });
 
   @override
   ConsumerState<CommentsSheet> createState() => _CommentsSheetState();
@@ -18,17 +22,7 @@ class CommentsSheet extends ConsumerStatefulWidget {
 
 class _CommentsSheetState extends ConsumerState<CommentsSheet> {
   final _controller = TextEditingController();
-  List<Map<String, dynamic>> _comments = [];
-  bool _loading = true;
   bool _sending = false;
-
-  final _functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
-
-  @override
-  void initState() {
-    super.initState();
-    _loadComments();
-  }
 
   @override
   void dispose() {
@@ -36,38 +30,24 @@ class _CommentsSheetState extends ConsumerState<CommentsSheet> {
     super.dispose();
   }
 
-  Future<void> _loadComments() async {
-    try {
-      final result = await _functions.httpsCallable('getComments').call({
-        'albumId': widget.albumId,
-        if (widget.photoId != null) 'photoId': widget.photoId,
-      });
-      setState(() {
-        _comments = List<Map<String, dynamic>>.from(result.data as List);
-        _loading = false;
-      });
-    } catch (_) {
-      setState(() => _loading = false);
-    }
-  }
-
   Future<void> _sendComment() async {
     final text = _controller.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty || _sending) return;
 
     setState(() => _sending = true);
     try {
-      await _functions.httpsCallable('addComment').call({
-        'albumId': widget.albumId,
-        if (widget.photoId != null) 'photoId': widget.photoId,
-        'text': text,
-      });
+      final user = ref.read(currentUserProvider).value;
+      await ref.read(commentServiceProvider).addPhotoComment(
+            albumId: widget.albumId,
+            photoId: widget.photoId,
+            customerName: user?.name ?? 'Müşteri',
+            text: text,
+          );
       _controller.clear();
-      await _loadComments();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Yorum gönderilemedi.')),
+          SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
         );
       }
     } finally {
@@ -77,122 +57,189 @@ class _CommentsSheetState extends ConsumerState<CommentsSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final commentsAsync = ref.watch(photoCommentsProvider((
+      albumId: widget.albumId,
+      photoId: widget.photoId,
+    )));
+
     return Container(
-      height: MediaQuery.of(context).size.height * 0.65,
+      height: MediaQuery.of(context).size.height * 0.68,
       decoration: const BoxDecoration(
-        color: Color(0xFF111111),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border(top: BorderSide(color: AppColors.border)),
       ),
       child: Column(
         children: [
-          // Handle
           Container(
             margin: const EdgeInsets.only(top: 10),
-            width: 36, height: 4,
+            width: 40,
+            height: 4,
             decoration: BoxDecoration(
-              color: Colors.white24,
+              color: AppColors.textMuted,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-
-          // Header
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(18, 16, 18, 12),
             child: Row(
               children: [
-                const Text(
-                  'Yorumlar',
-                  style: TextStyle(
-                      color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-                if (_comments.isNotEmpty) ...[
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: const Color(0x1FF59E0B),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      '${_comments.length}',
-                      style: const TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w600),
-                    ),
+                const Icon(Icons.mode_comment_outlined,
+                    color: AppColors.primary, size: 20),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Fotoğraf Notları',
+                        style: TextStyle(
+                          color: AppColors.cream,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Photoshop, rötuş veya teslim notunuzu yazın.',
+                        style:
+                            TextStyle(color: AppColors.textMuted, fontSize: 12),
+                      ),
+                    ],
                   ),
-                ],
+                ),
+                commentsAsync.maybeWhen(
+                  data: (comments) => comments.isEmpty
+                      ? const SizedBox.shrink()
+                      : Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: AppColors.amber_dim,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            '${comments.length}',
+                            style: const TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                  orElse: () => const SizedBox.shrink(),
+                ),
               ],
             ),
           ),
-
-          const Divider(color: Color(0xFF2a2a2a), height: 1),
-
-          // Comments list
+          const Divider(height: 1, color: AppColors.border),
           Expanded(
-            child: _loading
-                ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-                : _comments.isEmpty
-                    ? const Center(
+            child: commentsAsync.when(
+              loading: () => const Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              ),
+              error: (e, _) => Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text(
+                  'Yorumlar yüklenemedi: $e',
+                  style: const TextStyle(color: AppColors.error),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              data: (comments) => comments.isEmpty
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(28),
                         child: Text(
-                          'Henüz yorum yok.\nİlk yorumu siz yapın!',
-                          style: TextStyle(color: AppColors.textSecondary),
+                          'Henüz not yok.\nBu fotoğraf için ilk notu siz yazın.',
+                          style: TextStyle(
+                            color: AppColors.textSecondary,
+                            height: 1.4,
+                          ),
                           textAlign: TextAlign.center,
                         ),
-                      )
-                    : ListView.separated(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        itemCount: _comments.length,
-                        separatorBuilder: (_, __) =>
-                            const Divider(color: Color(0xFF1e1e1e), height: 1),
-                        itemBuilder: (_, i) => _CommentTile(comment: _comments[i]),
                       ),
+                    )
+                  : ListView.separated(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      itemCount: comments.length,
+                      separatorBuilder: (_, __) =>
+                          const Divider(color: AppColors.border, height: 1),
+                      itemBuilder: (_, i) => _CommentTile(comment: comments[i]),
+                    ),
+            ),
           ),
-
-          // Input
           Container(
             padding: EdgeInsets.fromLTRB(
-                16, 12, 16, 12 + MediaQuery.of(context).viewInsets.bottom),
+              16,
+              12,
+              16,
+              12 + MediaQuery.of(context).viewInsets.bottom,
+            ),
             decoration: const BoxDecoration(
-              color: Color(0xFF0e0e0e),
-              border: Border(top: BorderSide(color: Color(0xFF2a2a2a))),
+              color: AppColors.coffee,
+              border: Border(top: BorderSide(color: AppColors.border)),
             ),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _controller,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                    maxLines: 1,
+                    style:
+                        const TextStyle(color: AppColors.cream, fontSize: 14),
+                    maxLength: 500,
+                    maxLines: 3,
+                    minLines: 1,
                     textInputAction: TextInputAction.send,
                     onSubmitted: (_) => _sendComment(),
                     decoration: InputDecoration(
-                      hintText: 'Yorum yaz...',
-                      hintStyle: const TextStyle(color: AppColors.textMuted),
+                      counterText: '',
+                      hintText: 'Örn: Photoshop yap, saçımı düzelt...',
                       filled: true,
-                      fillColor: const Color(0xFF1a1a1a),
+                      fillColor: AppColors.background,
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: const BorderSide(color: AppColors.border),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: const BorderSide(color: AppColors.border),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: const BorderSide(
+                            color: AppColors.primary, width: 1.4),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(width: 10),
-                GestureDetector(
+                InkWell(
                   onTap: _sending ? null : _sendComment,
+                  borderRadius: BorderRadius.circular(999),
                   child: Container(
-                    width: 40, height: 40,
+                    width: 44,
+                    height: 44,
                     decoration: BoxDecoration(
-                      color: _sending ? AppColors.primary.withOpacity(.5) : AppColors.primary,
+                      color: _sending
+                          ? AppColors.primary.withOpacity(.5)
+                          : AppColors.primary,
                       shape: BoxShape.circle,
                     ),
                     child: _sending
                         ? const Padding(
-                            padding: EdgeInsets.all(10),
+                            padding: EdgeInsets.all(12),
                             child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Colors.black),
+                              strokeWidth: 2,
+                              color: AppColors.background,
+                            ),
                           )
-                        : const Icon(Icons.send_rounded, color: Colors.black, size: 18),
+                        : const Icon(Icons.send_rounded,
+                            color: AppColors.background, size: 19),
                   ),
                 ),
               ],
@@ -205,26 +252,28 @@ class _CommentsSheetState extends ConsumerState<CommentsSheet> {
 }
 
 class _CommentTile extends StatelessWidget {
-  final Map<String, dynamic> comment;
+  final CommentModel comment;
   const _CommentTile({required this.comment});
 
   @override
   Widget build(BuildContext context) {
-    final name = comment['customerName'] as String? ?? 'Müşteri';
-    final text = comment['text'] as String? ?? '';
-
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CircleAvatar(
-            radius: 16,
+            radius: 17,
             backgroundColor: AppColors.amber_dim,
             child: Text(
-              name.isNotEmpty ? name[0].toUpperCase() : '?',
+              comment.customerName.isNotEmpty
+                  ? comment.customerName[0].toUpperCase()
+                  : '?',
               style: const TextStyle(
-                  color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.bold),
+                color: AppColors.primary,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           const SizedBox(width: 10),
@@ -232,12 +281,23 @@ class _CommentTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name,
-                    style: const TextStyle(
-                        color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
-                const SizedBox(height: 2),
-                Text(text,
-                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                Text(
+                  comment.customerName,
+                  style: const TextStyle(
+                    color: AppColors.cream,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  comment.text,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 13,
+                    height: 1.35,
+                  ),
+                ),
               ],
             ),
           ),

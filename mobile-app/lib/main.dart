@@ -41,26 +41,64 @@ class FotografStudyosuApp extends ConsumerWidget {
         useMaterial3: true,
         brightness: Brightness.dark,
         scaffoldBackgroundColor: AppColors.background,
-        colorScheme: ColorScheme.dark(
+        colorScheme: const ColorScheme.dark(
           primary: AppColors.primary,
           surface: AppColors.surface,
+          onPrimary: AppColors.background,
+          onSurface: AppColors.textPrimary,
+          outline: AppColors.border,
         ),
         appBarTheme: const AppBarTheme(
           backgroundColor: AppColors.background,
           elevation: 0,
           centerTitle: true,
           titleTextStyle: TextStyle(
-            color: Colors.white,
-            fontSize: 17,
-            fontWeight: FontWeight.w600,
+            color: AppColors.cream,
+            fontSize: 19,
+            fontWeight: FontWeight.w700,
           ),
-          iconTheme: IconThemeData(color: Colors.white),
+          iconTheme: IconThemeData(color: AppColors.cream),
         ),
         navigationBarTheme: NavigationBarThemeData(
           backgroundColor: AppColors.coffee,
           indicatorColor: AppColors.primary.withOpacity(0.18),
           labelTextStyle: WidgetStateProperty.all(
-            const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
+            const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        cardTheme: CardThemeData(
+          color: AppColors.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+            side: const BorderSide(color: AppColors.border),
+          ),
+        ),
+        dividerTheme: const DividerThemeData(color: AppColors.border),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: AppColors.surfaceLight,
+          hintStyle: const TextStyle(color: AppColors.textMuted),
+          labelStyle: const TextStyle(color: AppColors.textSecondary),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.border),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.background,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         ),
       ),

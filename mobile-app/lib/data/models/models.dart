@@ -134,7 +134,8 @@ class FavoriteModel {
     required this.createdAt,
   });
 
-  factory FavoriteModel.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
+  factory FavoriteModel.fromFirestore(
+      DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
     return FavoriteModel(
       id: doc.id,
@@ -146,9 +147,43 @@ class FavoriteModel {
   }
 
   Map<String, dynamic> toMap() => {
-    'customerId': customerId,
-    'albumId': albumId,
-    'photoId': photoId,
-    'createdAt': FieldValue.serverTimestamp(),
-  };
+        'customerId': customerId,
+        'albumId': albumId,
+        'photoId': photoId,
+        'createdAt': FieldValue.serverTimestamp(),
+      };
+}
+
+class CommentModel {
+  final String id;
+  final String albumId;
+  final String? photoId;
+  final String customerId;
+  final String customerName;
+  final String text;
+  final DateTime createdAt;
+
+  const CommentModel({
+    required this.id,
+    required this.albumId,
+    this.photoId,
+    required this.customerId,
+    required this.customerName,
+    required this.text,
+    required this.createdAt,
+  });
+
+  factory CommentModel.fromFirestore(
+      DocumentSnapshot<Map<String, dynamic>> doc) {
+    final data = doc.data()!;
+    return CommentModel(
+      id: doc.id,
+      albumId: data['albumId'] as String? ?? '',
+      photoId: data['photoId'] as String?,
+      customerId: data['customerId'] as String? ?? '',
+      customerName: data['customerName'] as String? ?? 'Müşteri',
+      text: data['text'] as String? ?? '',
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+    );
+  }
 }

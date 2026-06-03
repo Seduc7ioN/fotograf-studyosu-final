@@ -73,9 +73,8 @@ class _CustomerUploadScreenState extends ConsumerState<CustomerUploadScreen> {
       final fileName = '${DateTime.now().millisecondsSinceEpoch}$ext';
 
       // 1. Cloud Function'dan signed upload URL al
-      final result = await _functions
-          .httpsCallable('getCustomerUploadUrl')
-          .call({
+      final result =
+          await _functions.httpsCallable('getCustomerUploadUrl').call({
         'albumId': widget.albumId,
         'fileName': fileName,
         'contentType': contentType,

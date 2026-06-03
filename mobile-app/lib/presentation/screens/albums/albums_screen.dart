@@ -196,7 +196,8 @@ class _AlbumCard extends StatelessWidget {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 14),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 13, vertical: 14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

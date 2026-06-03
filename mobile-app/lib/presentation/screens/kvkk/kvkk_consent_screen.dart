@@ -35,10 +35,7 @@ class _KvkkConsentScreenState extends ConsumerState<KvkkConsentScreen> {
     if (uid == null) return;
 
     // Rıza kayıtlarını Firestore'a yaz (denetim izi)
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .update({
+    await FirebaseFirestore.instance.collection('users').doc(uid).update({
       'kvkkConsentDate': FieldValue.serverTimestamp(),
       'kvkkConsentVersion': '1.0',
       'consentPushNotification': _consentPushNotification,
@@ -54,7 +51,8 @@ class _KvkkConsentScreenState extends ConsumerState<KvkkConsentScreen> {
       'consentDate': FieldValue.serverTimestamp(),
       'consentPushNotification': _consentPushNotification,
       'consentPhoneContact': _consentPhoneContact,
-      'legalBasis': 'KVKK m.3/a — Belirli konuya ilişkin, bilgilendirilmeye dayanan, özgür iradeyle açıklanan rıza',
+      'legalBasis':
+          'KVKK m.3/a — Belirli konuya ilişkin, bilgilendirilmeye dayanan, özgür iradeyle açıklanan rıza',
     });
 
     if (mounted) {
@@ -76,11 +74,13 @@ class _KvkkConsentScreenState extends ConsumerState<KvkkConsentScreen> {
               child: Column(
                 children: [
                   Container(
-                    width: 56, height: 56,
+                    width: 56,
+                    height: 56,
                     decoration: BoxDecoration(
                       color: AppColors.amber_dim,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.primary.withOpacity(.3)),
+                      border:
+                          Border.all(color: AppColors.primary.withOpacity(.3)),
                     ),
                     child: const Icon(Icons.shield_outlined,
                         color: AppColors.primary, size: 28),
@@ -96,7 +96,8 @@ class _KvkkConsentScreenState extends ConsumerState<KvkkConsentScreen> {
                   const SizedBox(height: 6),
                   const Text(
                     'Hizmeti kullanmadan önce lütfen\naşağıdaki bilgileri okuyun.',
-                    style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                    style:
+                        TextStyle(color: AppColors.textSecondary, fontSize: 13),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -108,7 +109,8 @@ class _KvkkConsentScreenState extends ConsumerState<KvkkConsentScreen> {
 
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 children: [
                   // Aydınlatma metni özeti
                   _InfoCard(
@@ -149,7 +151,8 @@ class _KvkkConsentScreenState extends ConsumerState<KvkkConsentScreen> {
                     onChanged: (v) => setState(() => _readAndUnderstood = v),
                     isRequired: true,
                     title: 'Aydınlatma metnini okudum ve anladım',
-                    subtitle: 'KVKK kapsamında kişisel verilerimin işleneceğini kabul ediyorum.',
+                    subtitle:
+                        'KVKK kapsamında kişisel verilerimin işleneceğini kabul ediyorum.',
                     linkText: 'Aydınlatma Metnini Oku',
                     onLinkTap: () => _showFullText(context, 'aydinlatma'),
                   ),
@@ -159,10 +162,12 @@ class _KvkkConsentScreenState extends ConsumerState<KvkkConsentScreen> {
                   // ─── OPSİYONEL: Push bildirim ────────────────────
                   _ConsentTile(
                     value: _consentPushNotification,
-                    onChanged: (v) => setState(() => _consentPushNotification = v),
+                    onChanged: (v) =>
+                        setState(() => _consentPushNotification = v),
                     isRequired: false,
                     title: 'Push bildirimleri (opsiyonel)',
-                    subtitle: 'Yeni albüm hazır olduğunda bildirim almak istiyorum.',
+                    subtitle:
+                        'Yeni albüm hazır olduğunda bildirim almak istiyorum.',
                   ),
 
                   const SizedBox(height: 10),
@@ -173,7 +178,8 @@ class _KvkkConsentScreenState extends ConsumerState<KvkkConsentScreen> {
                     onChanged: (v) => setState(() => _consentPhoneContact = v),
                     isRequired: false,
                     title: 'Telefon ile iletişim (opsiyonel)',
-                    subtitle: 'Stüdyonun hizmetle ilgili SMS/WhatsApp göndermesine izin veriyorum.',
+                    subtitle:
+                        'Stüdyonun hizmetle ilgili SMS/WhatsApp göndermesine izin veriyorum.',
                   ),
 
                   const SizedBox(height: 16),
@@ -189,7 +195,8 @@ class _KvkkConsentScreenState extends ConsumerState<KvkkConsentScreen> {
                     child: const Text(
                       '💡 Opsiyonel rızaları istediğiniz zaman Profil ekranından geri alabilirsiniz. '
                       'Zorunlu onay olmadan hizmet kullanılamaz.',
-                      style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                      style: TextStyle(
+                          color: AppColors.textSecondary, fontSize: 11),
                     ),
                   ),
 
@@ -215,7 +222,8 @@ class _KvkkConsentScreenState extends ConsumerState<KvkkConsentScreen> {
                   ),
                   child: _saving
                       ? const SizedBox(
-                          width: 20, height: 20,
+                          width: 20,
+                          height: 20,
                           child: CircularProgressIndicator(
                               strokeWidth: 2, color: Colors.black))
                       : const Text('Devam Et',
@@ -246,7 +254,9 @@ class _KvkkConsentScreenState extends ConsumerState<KvkkConsentScreen> {
           padding: const EdgeInsets.all(20),
           children: const [
             Text('Aydınlatma Metni',
-                style: TextStyle(color: Colors.white, fontSize: 18,
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold)),
             SizedBox(height: 12),
             Text(
@@ -254,7 +264,8 @@ class _KvkkConsentScreenState extends ConsumerState<KvkkConsentScreen> {
               'veya stüdyonun web sitesini ziyaret edin.\n\n'
               'Bu metinde işlenen veriler, amaçları, saklama süreleri ve '
               'haklarınız detaylı olarak açıklanmaktadır.',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.6),
+              style: TextStyle(
+                  color: AppColors.textSecondary, fontSize: 13, height: 1.6),
             ),
           ],
         ),
@@ -269,7 +280,8 @@ class _InfoCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final List<String> items;
-  const _InfoCard({required this.icon, required this.title, required this.items});
+  const _InfoCard(
+      {required this.icon, required this.title, required this.items});
 
   @override
   Widget build(BuildContext context) {
@@ -288,7 +300,9 @@ class _InfoCard extends StatelessWidget {
             const SizedBox(width: 8),
             Text(title,
                 style: const TextStyle(
-                    color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600)),
           ]),
           const SizedBox(height: 8),
           ...items.map((item) => Padding(
@@ -297,11 +311,14 @@ class _InfoCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('• ',
-                        style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                        style: TextStyle(
+                            color: AppColors.textMuted, fontSize: 12)),
                     Expanded(
                       child: Text(item,
                           style: const TextStyle(
-                              color: AppColors.textSecondary, fontSize: 12, height: 1.4)),
+                              color: AppColors.textSecondary,
+                              fontSize: 12,
+                              height: 1.4)),
                     ),
                   ],
                 ),
@@ -338,7 +355,8 @@ class _ConsentTile extends StatelessWidget {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-            color: value ? AppColors.primary.withOpacity(.4) : AppColors.border),
+            color:
+                value ? AppColors.primary.withOpacity(.4) : AppColors.border),
       ),
       child: CheckboxListTile(
         value: value,
@@ -350,7 +368,9 @@ class _ConsentTile extends StatelessWidget {
           Expanded(
             child: Text(title,
                 style: const TextStyle(
-                    color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600)),
           ),
           if (isRequired)
             Container(
@@ -360,7 +380,9 @@ class _ConsentTile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6),
               ),
               child: const Text('Zorunlu',
-                  style: TextStyle(color: AppColors.error, fontSize: 9,
+                  style: TextStyle(
+                      color: AppColors.error,
+                      fontSize: 9,
                       fontWeight: FontWeight.w600)),
             )
           else
@@ -371,7 +393,9 @@ class _ConsentTile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6),
               ),
               child: const Text('Opsiyonel',
-                  style: TextStyle(color: AppColors.success, fontSize: 9,
+                  style: TextStyle(
+                      color: AppColors.success,
+                      fontSize: 9,
                       fontWeight: FontWeight.w600)),
             ),
         ]),

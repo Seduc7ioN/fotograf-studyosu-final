@@ -35,7 +35,8 @@ class _KvkkRightsScreenState extends ConsumerState<KvkkRightsScreen> {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
 
-    final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    final doc =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
     if (doc.exists && mounted) {
       setState(() {
         _consentPush = doc.data()?['consentPushNotification'] ?? false;
@@ -78,7 +79,8 @@ class _KvkkRightsScreenState extends ConsumerState<KvkkRightsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('✅ Veri kopyası hazırlandı. E-posta adresinize gönderilecek.'),
+            content: Text(
+                '✅ Veri kopyası hazırlandı. E-posta adresinize gönderilecek.'),
             backgroundColor: AppColors.success,
           ),
         );
@@ -96,9 +98,9 @@ class _KvkkRightsScreenState extends ConsumerState<KvkkRightsScreen> {
     final confirm = await _showConfirmDialog(
       '⚠️ Hesabı ve Tüm Verileri Sil',
       'Bu işlem GERİ ALINAMAZ.\n\n'
-      'Hesabınız, tüm albümleriniz, fotoğraflarınız ve kişisel verileriniz '
-      'kalıcı olarak silinecektir. KVKK m.11/e kapsamında bu talebiniz '
-      'kayıt altına alınacaktır.',
+          'Hesabınız, tüm albümleriniz, fotoğraflarınız ve kişisel verileriniz '
+          'kalıcı olarak silinecektir. KVKK m.11/e kapsamında bu talebiniz '
+          'kayıt altına alınacaktır.',
       confirmText: 'Evet, Sil',
       isDestructive: true,
     );
@@ -141,7 +143,8 @@ class _KvkkRightsScreenState extends ConsumerState<KvkkRightsScreen> {
         ),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? const Center(
+              child: CircularProgressIndicator(color: AppColors.primary))
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
@@ -368,11 +371,12 @@ class _RightsTile extends StatelessWidget {
     return ListTile(
       leading: Icon(icon, color: color, size: 22),
       title: Text(title,
-          style: TextStyle(color: color, fontSize: 13, fontWeight: FontWeight.w500)),
+          style: TextStyle(
+              color: color, fontSize: 13, fontWeight: FontWeight.w500)),
       subtitle: Text(subtitle,
           style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
-      trailing: const Icon(Icons.chevron_right,
-          color: AppColors.textMuted, size: 18),
+      trailing:
+          const Icon(Icons.chevron_right, color: AppColors.textMuted, size: 18),
       onTap: onTap,
     );
   }

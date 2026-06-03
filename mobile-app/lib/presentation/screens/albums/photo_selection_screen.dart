@@ -14,7 +14,8 @@ class PhotoSelectionScreen extends ConsumerStatefulWidget {
   const PhotoSelectionScreen({super.key, required this.albumId});
 
   @override
-  ConsumerState<PhotoSelectionScreen> createState() => _PhotoSelectionScreenState();
+  ConsumerState<PhotoSelectionScreen> createState() =>
+      _PhotoSelectionScreenState();
 }
 
 class _PhotoSelectionScreenState extends ConsumerState<PhotoSelectionScreen> {
@@ -39,8 +40,8 @@ class _PhotoSelectionScreenState extends ConsumerState<PhotoSelectionScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('Seçimi Onayla',
-            style: TextStyle(color: Colors.white)),
+        title:
+            const Text('Seçimi Onayla', style: TextStyle(color: Colors.white)),
         content: Text(
           '${_selected.length} fotoğraf seçtiniz. Seçiminizi göndermek istiyor musunuz?',
           style: const TextStyle(color: AppColors.textSecondary),
@@ -65,12 +66,12 @@ class _PhotoSelectionScreenState extends ConsumerState<PhotoSelectionScreen> {
 
     try {
       // Seçilen fotoğrafları "selected" olarak işaretle
-      await Future.wait(_selected.map((photoId) =>
-          _functions.httpsCallable('selectPhoto').call({
-            'albumId': widget.albumId,
-            'photoId': photoId,
-            'selected': true,
-          })));
+      await Future.wait(_selected
+          .map((photoId) => _functions.httpsCallable('selectPhoto').call({
+                'albumId': widget.albumId,
+                'photoId': photoId,
+                'selected': true,
+              })));
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -116,14 +117,16 @@ class _PhotoSelectionScreenState extends ConsumerState<PhotoSelectionScreen> {
               onPressed: _submitting ? null : _submitSelections,
               child: _submitting
                   ? const SizedBox(
-                      width: 16, height: 16,
+                      width: 16,
+                      height: 16,
                       child: CircularProgressIndicator(
                           strokeWidth: 2, color: AppColors.primary),
                     )
                   : const Text(
                       'Gönder',
                       style: TextStyle(
-                          color: AppColors.primary, fontWeight: FontWeight.w600),
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600),
                     ),
             ),
         ],
@@ -180,9 +183,11 @@ class _PhotoSelectionScreenState extends ConsumerState<PhotoSelectionScreen> {
 
                         // Checkbox
                         Positioned(
-                          top: 6, right: 6,
+                          top: 6,
+                          right: 6,
                           child: Container(
-                            width: 22, height: 22,
+                            width: 22,
+                            height: 22,
                             decoration: BoxDecoration(
                               color: isSelected
                                   ? AppColors.primary

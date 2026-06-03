@@ -16,154 +16,285 @@ class ProfileScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Profil'),
-        backgroundColor: AppColors.background,
-        automaticallyImplyLeading: false,
-      ),
-      body: userAsync.when(
-        loading: () =>
-            const Center(child: CircularProgressIndicator(color: AppColors.primary)),
-        error: (e, _) => Center(
-          child: Text('$e', style: const TextStyle(color: AppColors.error)),
+      body: DecoratedBox(
+        decoration: const BoxDecoration(
+          gradient: RadialGradient(
+            center: Alignment.topCenter,
+            radius: 1.2,
+            colors: [Color(0x443A1B10), AppColors.background],
+          ),
         ),
-        data: (user) {
-          if (user == null) return const SizedBox.shrink();
+        child: SafeArea(
+          child: userAsync.when(
+            loading: () => const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            ),
+            error: (e, _) => Center(
+              child: Text('$e', style: const TextStyle(color: AppColors.error)),
+            ),
+            data: (user) {
+              if (user == null) return const SizedBox.shrink();
 
-          return ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              Center(
-                child: Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.15),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppColors.primary.withOpacity(0.4),
-                      width: 2,
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
-                      style: const TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
+              return ListView(
+                padding: const EdgeInsets.fromLTRB(20, 18, 20, 28),
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Profil',
+                              style: TextStyle(
+                                color: AppColors.textMuted,
+                                fontSize: 13,
+                                letterSpacing: 1.5,
+                              ),
+                            ),
+                            Text(
+                              user.name,
+                              style: const TextStyle(
+                                color: AppColors.cream,
+                                fontSize: 25,
+                                fontWeight: FontWeight.w700,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
                       ),
+                      Image.asset(
+                        'assets/images/lumeart_logo.png',
+                        width: 106,
+                        fit: BoxFit.contain,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                  _profileCard(user.name, user.email),
+                  const SizedBox(height: 18),
+                  _sectionTitle('Stüdyo İletişim'),
+                  const SizedBox(height: 10),
+                  _tile(
+                    context,
+                    icon: Icons.chat_outlined,
+                    label: 'WhatsApp mesajı gönder',
+                    subtitle: StudioBrand.phoneDisplay,
+                    color: AppColors.success,
+                    onTap: () => _openUri(
+                      context,
+                      Uri.parse(
+                        'https://wa.me/${StudioBrand.whatsappPhone}?text=${Uri.encodeComponent('Merhaba Lume Art Wedding, fotoğraflarım hakkında bilgi almak istiyorum.')}',
+                      ),
+                      'WhatsApp açılamadı.',
                     ),
                   ),
+                  _tile(
+                    context,
+                    icon: Icons.mail_outline,
+                    label: 'E-posta gönder',
+                    subtitle: StudioBrand.email,
+                    onTap: () => _openUri(
+                      context,
+                      Uri.parse(
+                        'mailto:${StudioBrand.email}?subject=${Uri.encodeComponent('Fotoğraf albümüm hakkında')}&body=${Uri.encodeComponent('Merhaba Lume Art Wedding,')}',
+                      ),
+                      'E-posta uygulaması açılamadı.',
+                    ),
+                  ),
+                  _tile(
+                    context,
+                    icon: Icons.phone_outlined,
+                    label: 'Stüdyoyu ara',
+                    subtitle: StudioBrand.phoneDisplay,
+                    onTap: () => _openUri(
+                      context,
+                      Uri.parse('tel:${StudioBrand.phoneDial}'),
+                      'Telefon araması başlatılamadı.',
+                    ),
+                  ),
+                  _tile(
+                    context,
+                    icon: Icons.camera_alt_outlined,
+                    label: 'Instagram',
+                    subtitle: StudioBrand.instagramHandle,
+                    onTap: () => _openUri(
+                      context,
+                      Uri.parse(StudioBrand.instagramUrl),
+                      'Instagram açılamadı.',
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  _sectionTitle('Hesap'),
+                  const SizedBox(height: 10),
+                  _tile(
+                    context,
+                    icon: Icons.shield_outlined,
+                    label: 'Gizlilik ve Veri Haklarım',
+                    subtitle: 'KVKK taleplerinizi yönetin',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const KvkkRightsScreen()),
+                    ),
+                  ),
+                  _tile(
+                    context,
+                    icon: Icons.logout_rounded,
+                    label: 'Çıkış Yap',
+                    subtitle: 'Oturumu kapat',
+                    color: AppColors.error,
+                    onTap: () => _confirmSignOut(context, ref),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _profileCard(String name, String email) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 58,
+            height: 58,
+            decoration: BoxDecoration(
+              color: AppColors.amber_dim,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.primary, width: 1.5),
+            ),
+            child: Center(
+              child: Text(
+                name.isNotEmpty ? name[0].toUpperCase() : '?',
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(height: 12),
-              Center(
-                child: Text(
-                  user.name,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
                   style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    color: AppColors.cream,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              Center(
-                child: Text(
-                  user.email,
+                const SizedBox(height: 4),
+                Text(
+                  email,
                   style: const TextStyle(
                     color: AppColors.textSecondary,
-                    fontSize: 14,
+                    fontSize: 13,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
-              ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-              const SizedBox(height: 32),
+  Widget _sectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        color: AppColors.textMuted,
+        fontSize: 12,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 1.2,
+      ),
+    );
+  }
 
-              _tile(
-                context,
-                icon: Icons.camera_alt_outlined,
-                label: '${StudioBrand.name} Instagram',
-                color: AppColors.primary,
-                onTap: () => _openUri(
-                  context,
-                  Uri.parse(StudioBrand.instagramUrl),
-                  'Instagram açılamadı.',
+  Widget _tile(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    String? subtitle,
+    Color? color,
+  }) {
+    final iconColor = color ?? AppColors.primary;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Material(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: iconColor.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: iconColor, size: 20),
                 ),
-              ),
-
-              const SizedBox(height: 8),
-
-              _tile(
-                context,
-                icon: Icons.phone_outlined,
-                label: 'Stüdyoyu ara: ${StudioBrand.phoneDisplay}',
-                color: AppColors.primary,
-                onTap: () => _openUri(
-                  context,
-                  Uri.parse('tel:${StudioBrand.phoneDial}'),
-                  'Telefon araması başlatılamadı.',
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              _tile(
-                context,
-                icon: Icons.shield_outlined,
-                label: 'Gizlilik ve Veri Haklarım',
-                color: AppColors.primary,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const KvkkRightsScreen()),
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              _tile(
-                context,
-                icon: Icons.logout_rounded,
-                label: 'Çıkış Yap',
-                color: AppColors.error,
-                onTap: () async {
-                  final confirm = await showDialog<bool>(
-                    context: context,
-                    builder: (_) => AlertDialog(
-                      backgroundColor: AppColors.surface,
-                      title: const Text(
-                        'Çıkış Yap',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      content: const Text(
-                        'Çıkış yapmak istediğinize emin misiniz?',
-                        style: TextStyle(color: AppColors.textSecondary),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Vazgeç'),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        label,
+                        style: const TextStyle(
+                          color: AppColors.cream,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
                         ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: const Text(
-                            'Çıkış Yap',
-                            style: TextStyle(color: AppColors.error),
+                      ),
+                      if (subtitle != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitle,
+                          style: const TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 12,
                           ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
-                    ),
-                  );
-                  if (confirm == true && context.mounted) {
-                    await ref.read(authServiceProvider).signOut();
-                  }
-                },
-              ),
-            ],
-          );
-        },
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right,
+                    color: AppColors.textMuted, size: 20),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -181,36 +312,36 @@ class ProfileScreen extends ConsumerWidget {
     }
   }
 
-  Widget _tile(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    Color? color,
-  }) {
-    return Material(
-      color: AppColors.surface,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Row(
-            children: [
-              Icon(icon, color: color ?? Colors.white, size: 20),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(color: color ?? Colors.white, fontSize: 15),
-                ),
-              ),
-              const Icon(Icons.chevron_right, color: AppColors.textMuted, size: 20),
-            ],
-          ),
+  Future<void> _confirmSignOut(BuildContext context, WidgetRef ref) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text(
+          'Çıkış Yap',
+          style: TextStyle(color: AppColors.cream),
         ),
+        content: const Text(
+          'Çıkış yapmak istediğinize emin misiniz?',
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Vazgeç'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Çıkış Yap',
+              style: TextStyle(color: AppColors.error),
+            ),
+          ),
+        ],
       ),
     );
+    if (confirm == true && context.mounted) {
+      await ref.read(authServiceProvider).signOut();
+    }
   }
 }

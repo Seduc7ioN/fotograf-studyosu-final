@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../providers/album_provider.dart';
+import '../../../providers/comment_provider.dart';
 import '../../../providers/favorite_provider.dart';
 import '../../../data/models/models.dart';
 import '../../constants/app_colors.dart';
@@ -123,8 +124,7 @@ class AlbumDetailScreen extends ConsumerWidget {
                   // FAB varsa alttan boşluk bırak
                   bottom: customerUploadEnabled ? 84 : 2,
                 ),
-                gridDelegate:
-                    const SliverGridDelegateWithFixedCrossAxisCount(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
                   crossAxisSpacing: 2,
                   mainAxisSpacing: 2,
@@ -176,8 +176,11 @@ class _PhotoGridItem extends ConsumerWidget {
       photoId: photo.id,
       isThumbnail: true,
     )));
-    final isFav = ref.watch(
-        isFavoriteProvider((albumId: photo.albumId, photoId: photo.id)));
+    final isFav = ref
+        .watch(isFavoriteProvider((albumId: photo.albumId, photoId: photo.id)));
+    final commentCount = ref.watch(photoCommentCountProvider(
+      (albumId: photo.albumId, photoId: photo.id),
+    ));
 
     return GestureDetector(
       onTap: onTap,
@@ -230,6 +233,44 @@ class _PhotoGridItem extends ConsumerWidget {
                     color: AppColors.primary, size: 12),
               ),
             ),
+
+          commentCount.maybeWhen(
+            data: (count) => count > 0
+                ? Positioned(
+                    bottom: 4,
+                    left: 4,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.mode_comment_outlined,
+                            color: AppColors.background,
+                            size: 11,
+                          ),
+                          const SizedBox(width: 3),
+                          Text(
+                            '$count',
+                            style: const TextStyle(
+                              color: AppColors.background,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : const SizedBox.shrink(),
+            orElse: () => const SizedBox.shrink(),
+          ),
         ],
       ),
     );

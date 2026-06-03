@@ -87,10 +87,8 @@ class FavoritesScreen extends ConsumerWidget {
                                 Container(color: AppColors.surfaceLight),
                           )
                         : Container(color: AppColors.surfaceLight),
-                    loading: () =>
-                        Container(color: AppColors.surfaceLight),
-                    error: (_, __) =>
-                        Container(color: AppColors.surfaceLight),
+                    loading: () => Container(color: AppColors.surfaceLight),
+                    error: (_, __) => Container(color: AppColors.surfaceLight),
                   ),
                   const Positioned(
                     bottom: 4,
