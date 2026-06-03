@@ -17,10 +17,12 @@ final albumsProvider = StreamProvider<List<AlbumModel>>((ref) {
       .collection('albums')
       .where('customerId', isEqualTo: uid)
       .where('status', isEqualTo: 'ready')
-      .orderBy('createdAt', descending: true)
       .snapshots()
-      .map(
-          (snap) => snap.docs.map((d) => AlbumModel.fromFirestore(d)).toList());
+      .map((snap) {
+    final albums = snap.docs.map((d) => AlbumModel.fromFirestore(d)).toList();
+    albums.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return albums;
+  });
 });
 
 // Tek albüm (detay sayfası için)

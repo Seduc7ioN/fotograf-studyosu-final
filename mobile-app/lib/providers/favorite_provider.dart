@@ -13,12 +13,15 @@ final favoritesProvider = StreamProvider<List<FavoriteModel>>((ref) {
   return _db
       .collection('favorites')
       .where('customerId', isEqualTo: uid)
-      .orderBy('createdAt', descending: true)
       .snapshots()
-      .map((snap) => snap.docs
-          .map((d) => FavoriteModel.fromFirestore(
-              d as DocumentSnapshot<Map<String, dynamic>>))
-          .toList());
+      .map((snap) {
+    final favorites = snap.docs
+        .map((d) => FavoriteModel.fromFirestore(
+            d as DocumentSnapshot<Map<String, dynamic>>))
+        .toList();
+    favorites.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return favorites;
+  });
 });
 
 final isFavoriteProvider =

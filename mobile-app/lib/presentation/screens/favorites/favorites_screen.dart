@@ -26,9 +26,22 @@ class FavoritesScreen extends ConsumerWidget {
         error: (e, _) => Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
-            child: Text('Hata: $e',
-                style: const TextStyle(color: AppColors.error),
-                textAlign: TextAlign.center),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Icon(Icons.error_outline, color: AppColors.error, size: 34),
+                SizedBox(height: 10),
+                Text(
+                  'Favoriler yüklenemedi. Lütfen biraz sonra tekrar deneyin.',
+                  style: TextStyle(
+                    color: AppColors.error,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
         ),
         data: (favorites) {

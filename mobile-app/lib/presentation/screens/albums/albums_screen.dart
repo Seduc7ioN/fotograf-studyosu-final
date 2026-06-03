@@ -109,10 +109,10 @@ class AlbumsScreen extends ConsumerWidget {
                   error: (e, _) => Center(
                     child: Padding(
                       padding: const EdgeInsets.all(24),
-                      child: Text(
-                        'Hata: $e',
-                        style: const TextStyle(color: AppColors.error),
-                        textAlign: TextAlign.center,
+                      child: _FriendlyError(
+                        message:
+                            'Albümler yüklenemedi. Lütfen biraz sonra tekrar deneyin.',
+                        detail: '$e',
                       ),
                     ),
                   ),
@@ -150,6 +150,41 @@ class AlbumsScreen extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _FriendlyError extends StatelessWidget {
+  final String message;
+  final String detail;
+
+  const _FriendlyError({required this.message, required this.detail});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(Icons.error_outline, color: AppColors.error, size: 34),
+        const SizedBox(height: 10),
+        Text(
+          message,
+          style: const TextStyle(
+            color: AppColors.error,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        if (detail.contains('failed-precondition')) ...[
+          const SizedBox(height: 8),
+          const Text(
+            'Sistem hazırlanıyor. Kısa süre sonra tekrar açın.',
+            style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ],
     );
   }
 }
