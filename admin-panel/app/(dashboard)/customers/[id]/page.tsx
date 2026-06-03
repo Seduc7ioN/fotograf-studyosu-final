@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { ArrowLeft, FolderOpen, KeyRound, Loader2, Plus } from "lucide-react";
 import { useAlbums } from "@/hooks/useAlbums";
 import { createPasswordResetLink, useCustomer } from "@/hooks/useCustomers";
+import MessageTemplateSender from "@/components/features/MessageTemplateSender";
 
 export default function CustomerDetailPage({
   params,
@@ -78,6 +79,8 @@ export default function CustomerDetailPage({
           </button>
         </div>
       </div>
+
+      <MessageTemplateSender customer={customer} />
 
       <div className="flex items-center justify-between">
         <h2 className="font-semibold text-[#f7f0e8]">Albümleri ({albums.length})</h2>

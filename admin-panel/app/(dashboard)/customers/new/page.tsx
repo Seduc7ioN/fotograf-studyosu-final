@@ -9,6 +9,7 @@ import { z } from "zod";
 import toast from "react-hot-toast";
 import { ArrowLeft, Copy, Loader2, Mail, MessageCircle } from "lucide-react";
 import { createCustomer } from "@/hooks/useCustomers";
+import { defaultStudioSettings, useSettings } from "@/hooks/useSettings";
 
 const schema = z.object({
   name: z.string().min(2, "İsim en az 2 karakter olmalı"),
@@ -32,6 +33,15 @@ E-posta: ${data.email || "musteri@example.com"}
 Şifre: ${data.password || "Musteri12345"}`;
 }
 
+function buildTemplateMessage(data: Partial<FormData>, template: string) {
+  const name = firstName(data.name || "");
+  return template
+    .replaceAll("{name}", name)
+    .replaceAll("{email}", data.email || "musteri@example.com")
+    .replaceAll("{password}", data.password || "Musteri12345")
+    .replaceAll("{date}", "");
+}
+
 function normalizeWhatsAppPhone(phone?: string) {
   const digits = (phone || "").replace(/\D/g, "");
   if (!digits) return "";
@@ -47,6 +57,7 @@ function isUsableEmail(email?: string) {
 
 export default function NewCustomerPage() {
   const router = useRouter();
+  const { settings } = useSettings();
 
   const {
     register,
@@ -64,7 +75,13 @@ export default function NewCustomerPage() {
   });
 
   const watchedValues = watch();
-  const loginMessage = useMemo(() => buildLoginMessage(watchedValues), [watchedValues]);
+  const loginTemplate =
+    settings.messageTemplates?.customerLogin ||
+    defaultStudioSettings.messageTemplates.customerLogin;
+  const loginMessage = useMemo(
+    () => buildTemplateMessage(watchedValues, loginTemplate),
+    [watchedValues, loginTemplate]
+  );
   const whatsappPhone = normalizeWhatsAppPhone(watchedValues.phone);
   const whatsappUrl = whatsappPhone
     ? `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(loginMessage)}`
@@ -87,7 +104,9 @@ export default function NewCustomerPage() {
   const onSubmit = async (data: FormData) => {
     try {
       const uid = await createCustomer(data);
-      await navigator.clipboard.writeText(buildLoginMessage(data)).catch(() => undefined);
+      await navigator.clipboard
+        .writeText(buildTemplateMessage(data, loginTemplate))
+        .catch(() => undefined);
       toast.success("Müşteri oluşturuldu, giriş bilgileri kopyalandı.");
       router.push(`/customers/${uid}`);
     } catch (error: any) {
