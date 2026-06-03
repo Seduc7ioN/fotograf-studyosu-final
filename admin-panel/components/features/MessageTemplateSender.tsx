@@ -4,9 +4,11 @@ import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { Copy, Mail, MessageCircle, Send } from "lucide-react";
 import { defaultStudioSettings, useSettings } from "@/hooks/useSettings";
+import { setCustomerPassword } from "@/hooks/useCustomers";
 import { User } from "@/lib/types";
 
 type TemplateKey = keyof typeof defaultStudioSettings.messageTemplates;
+type SendTarget = "whatsapp" | "mail" | "copy";
 
 const templateLabels: Record<TemplateKey, string> = {
   customerLogin: "Müşteri giriş bilgisi",
@@ -29,19 +31,29 @@ function normalizeWhatsAppPhone(phone?: string) {
   return digits.length >= 10 ? digits : "";
 }
 
+function suggestedPassword(customer: User) {
+  const cleanName = firstName(customer.name)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]/g, "");
+  return `${cleanName || "Musteri"}12345`;
+}
+
 function fillTemplate({
   template,
   customer,
   date,
+  password,
 }: {
   template: string;
   customer: User;
   date: string;
+  password: string;
 }) {
   return template
     .replaceAll("{name}", firstName(customer.name))
     .replaceAll("{email}", customer.email)
-    .replaceAll("{password}", "Şifreyi güvenlik için panel göstermez. Gerekirse şifre yenileme linki gönderin.")
+    .replaceAll("{password}", password || "Musteri12345")
     .replaceAll("{date}", date || "randevu günü");
 }
 
@@ -64,11 +76,14 @@ export default function MessageTemplateSender({ customer }: { customer: User }) 
   const { settings } = useSettings();
   const [templateKey, setTemplateKey] = useState<TemplateKey>("albumReady");
   const [date, setDate] = useState("");
+  const [password, setPassword] = useState(() => suggestedPassword(customer));
+  const [sending, setSending] = useState<SendTarget | null>(null);
 
   const templates = settings.messageTemplates || defaultStudioSettings.messageTemplates;
+  const isLoginTemplate = templateKey === "customerLogin";
   const message = useMemo(
-    () => fillTemplate({ template: templates[templateKey], customer, date }),
-    [customer, date, templateKey, templates]
+    () => fillTemplate({ template: templates[templateKey], customer, date, password }),
+    [customer, date, password, templateKey, templates]
   );
   const whatsappPhone = normalizeWhatsAppPhone(customer.phone);
   const whatsappUrl = whatsappPhone
@@ -78,12 +93,43 @@ export default function MessageTemplateSender({ customer }: { customer: User }) 
     ? `mailto:${customer.email}?subject=${encodeURIComponent(mailSubject(templateKey))}&body=${encodeURIComponent(message)}`
     : "";
 
-  const copyMessage = async () => {
+  const syncPasswordIfNeeded = async () => {
+    if (!isLoginTemplate) return;
+    const nextPassword = password.trim();
+    if (nextPassword.length < 6) {
+      throw new Error("Şifre en az 6 karakter olmalı.");
+    }
+    await setCustomerPassword(customer.id, nextPassword);
+  };
+
+  const prepareAndSend = async (target: SendTarget) => {
+    if (target === "whatsapp" && !whatsappUrl) {
+      toast.error("Müşterinin telefon numarası yok.");
+      return;
+    }
+
+    setSending(target);
     try {
-      await navigator.clipboard.writeText(message);
-      toast.success("Mesaj kopyalandı.");
-    } catch {
-      toast.error("Mesaj kopyalanamadı.");
+      await syncPasswordIfNeeded();
+
+      if (target === "copy") {
+        await navigator.clipboard.writeText(message);
+        toast.success(isLoginTemplate ? "Şifre güncellendi, mesaj kopyalandı." : "Mesaj kopyalandı.");
+      }
+
+      if (target === "whatsapp") {
+        window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+        toast.success(isLoginTemplate ? "Şifre güncellendi, WhatsApp açıldı." : "WhatsApp açıldı.");
+      }
+
+      if (target === "mail") {
+        window.location.href = mailUrl;
+        toast.success(isLoginTemplate ? "Şifre güncellendi, e-posta açıldı." : "E-posta açıldı.");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Mesaj gönderime hazırlanamadı.");
+    } finally {
+      setSending(null);
     }
   };
 
@@ -96,7 +142,7 @@ export default function MessageTemplateSender({ customer }: { customer: User }) 
         <div>
           <h2 className="font-semibold text-[#f7f0e8]">Hazır Mesaj Gönder</h2>
           <p className="mt-1 text-xs text-[#8d7462]">
-            Ayarlar sayfasındaki şablonları WhatsApp, e-posta veya kopyala ile kullanın.
+            Şablonu seçin; giriş bilgisi gönderirken yazdığınız şifre müşteriye atanır ve mesajda paylaşılır.
           </p>
         </div>
       </div>
@@ -132,37 +178,51 @@ export default function MessageTemplateSender({ customer }: { customer: User }) 
             />
           </label>
 
+          {isLoginTemplate && (
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-medium text-[#d8c7b8]">
+                Paylaşılacak şifre
+              </span>
+              <input
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                type="text"
+                minLength={6}
+                className="w-full rounded-lg border border-[#433126] bg-[#100a07] px-3 py-2.5 text-sm text-[#f7f0e8] outline-none transition focus:border-[#E8611A]"
+              />
+              <p className="mt-1 text-xs text-[#8d7462]">
+                Gönderirken müşterinin mobil giriş şifresi bu değerle güncellenir.
+              </p>
+            </label>
+          )}
+
           <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
-            <a
-              href={whatsappUrl || undefined}
-              target="_blank"
-              rel="noreferrer"
-              aria-disabled={!whatsappUrl}
-              onClick={(event) => {
-                if (!whatsappUrl) {
-                  event.preventDefault();
-                  toast.error("Müşterinin telefon numarası yok.");
-                }
-              }}
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-green-700/60 bg-green-950/20 px-3 py-2 text-sm font-semibold text-green-200 transition hover:bg-green-900/30"
-            >
-              <MessageCircle className="h-4 w-4" />
-              WhatsApp
-            </a>
-            <a
-              href={mailUrl}
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-blue-700/60 bg-blue-950/20 px-3 py-2 text-sm font-semibold text-blue-200 transition hover:bg-blue-900/30"
-            >
-              <Mail className="h-4 w-4" />
-              E-posta
-            </a>
             <button
               type="button"
-              onClick={copyMessage}
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#433126] bg-[#100a07] px-3 py-2 text-sm font-semibold text-[#d8c7b8] transition hover:border-[#E8611A]/70 hover:text-[#ff8a45]"
+              onClick={() => prepareAndSend("whatsapp")}
+              disabled={sending !== null}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-green-700/60 bg-green-950/20 px-3 py-2 text-sm font-semibold text-green-200 transition hover:bg-green-900/30 disabled:opacity-60"
+            >
+              <MessageCircle className="h-4 w-4" />
+              {sending === "whatsapp" ? "Hazırlanıyor..." : "WhatsApp"}
+            </button>
+            <button
+              type="button"
+              onClick={() => prepareAndSend("mail")}
+              disabled={sending !== null}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-blue-700/60 bg-blue-950/20 px-3 py-2 text-sm font-semibold text-blue-200 transition hover:bg-blue-900/30 disabled:opacity-60"
+            >
+              <Mail className="h-4 w-4" />
+              {sending === "mail" ? "Hazırlanıyor..." : "E-posta"}
+            </button>
+            <button
+              type="button"
+              onClick={() => prepareAndSend("copy")}
+              disabled={sending !== null}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#433126] bg-[#100a07] px-3 py-2 text-sm font-semibold text-[#d8c7b8] transition hover:border-[#E8611A]/70 hover:text-[#ff8a45] disabled:opacity-60"
             >
               <Copy className="h-4 w-4" />
-              Kopyala
+              {sending === "copy" ? "Hazırlanıyor..." : "Kopyala"}
             </button>
           </div>
         </div>

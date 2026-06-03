@@ -158,3 +158,24 @@ export async function createPasswordResetLink(email: string): Promise<string> {
 
   return data.link;
 }
+
+export async function setCustomerPassword(
+  customerId: string,
+  password: string
+): Promise<void> {
+  const token = await getAdminToken();
+  const res = await fetch("/api/customers/set-password", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ uid: customerId, password }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || "Müşteri şifresi güncellenemedi.");
+  }
+}
