@@ -5,9 +5,52 @@ service cloud.firestore {
     function isAuthenticated() { return request.auth != null; }
     function isAdmin() { return isAuthenticated() && request.auth.token.role == 'admin'; }
     function isOwner(userId) { return isAuthenticated() && request.auth.uid == userId; }
+    function isBookingRequestStatus(status) {
+      return status in ['new', 'contacted', 'proposal_sent', 'accepted', 'rejected'];
+    }
+    function isValidBookingRequestCreate() {
+      return request.resource.data.keys().hasOnly([
+          'name',
+          'phone',
+          'email',
+          'eventType',
+          'preferredDate',
+          'city',
+          'venue',
+          'message',
+          'status',
+          'createdAt',
+          'updatedAt'
+        ]) &&
+        request.resource.data.name is string &&
+        request.resource.data.name.size() >= 2 &&
+        request.resource.data.name.size() <= 80 &&
+        request.resource.data.phone is string &&
+        request.resource.data.phone.size() >= 7 &&
+        request.resource.data.phone.size() <= 40 &&
+        request.resource.data.email is string &&
+        request.resource.data.email.size() <= 120 &&
+        request.resource.data.eventType is string &&
+        request.resource.data.eventType.size() >= 2 &&
+        request.resource.data.eventType.size() <= 60 &&
+        request.resource.data.preferredDate is string &&
+        request.resource.data.preferredDate.size() <= 20 &&
+        request.resource.data.city is string &&
+        request.resource.data.city.size() <= 80 &&
+        request.resource.data.venue is string &&
+        request.resource.data.venue.size() <= 140 &&
+        request.resource.data.message is string &&
+        request.resource.data.message.size() <= 800 &&
+        request.resource.data.status == 'new' &&
+        request.resource.data.createdAt == request.time &&
+        request.resource.data.updatedAt == request.time;
+    }
     function isAlbumOwner(albumId) {
       let album = get(/databases/$(database)/documents/albums/$(albumId));
       return isAuthenticated() && album.data.customerId == request.auth.uid;
+    }
+    function photoExists(albumId, photoId) {
+      return exists(/databases/$(database)/documents/albums/$(albumId)/photos/$(photoId));
     }
 
     match /users/{userId} {
@@ -36,7 +79,9 @@ service cloud.firestore {
       allow read: if isAdmin() ||
         (isAuthenticated() && resource.data.customerId == request.auth.uid);
       allow create: if isAuthenticated() &&
-        request.resource.data.customerId == request.auth.uid;
+        request.resource.data.customerId == request.auth.uid &&
+        isAlbumOwner(request.resource.data.albumId) &&
+        photoExists(request.resource.data.albumId, request.resource.data.photoId);
       allow update: if false;
       allow delete: if isAdmin() ||
         (isAuthenticated() && resource.data.customerId == request.auth.uid);
@@ -47,6 +92,8 @@ service cloud.firestore {
         (isAuthenticated() && resource.data.customerId == request.auth.uid);
       allow create: if isAuthenticated() &&
         request.resource.data.customerId == request.auth.uid &&
+        isAlbumOwner(request.resource.data.albumId) &&
+        photoExists(request.resource.data.albumId, request.resource.data.photoId) &&
         request.resource.data.text.size() <= 500;
       allow update: if false;
       allow delete: if isAdmin() ||
@@ -75,9 +122,27 @@ service cloud.firestore {
       allow read, create, update, delete: if isAdmin();
     }
 
+    match /booking_requests/{requestId} {
+      allow read: if isAdmin();
+      allow create: if isValidBookingRequestCreate();
+      allow update: if isAdmin() &&
+        isBookingRequestStatus(request.resource.data.status);
+      allow delete: if isAdmin();
+    }
+
     match /share_links/{token} {
       allow read: if true;
       allow write: if false;
+    }
+
+    match /site_showcase/{itemId} {
+      allow read: if isAdmin() || resource.data.published == true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /site_music/{trackId} {
+      allow read: if isAdmin() || resource.data.active == true;
+      allow create, update, delete: if isAdmin();
     }
 
     match /audit_logs/{logId} {

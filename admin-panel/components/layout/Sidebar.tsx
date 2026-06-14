@@ -5,10 +5,12 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   CalendarDays,
+  ClipboardList,
   FolderOpen,
   LayoutDashboard,
   LogOut,
   MessageSquare,
+  PanelsTopLeft,
   Settings,
   Upload,
   Users,
@@ -20,10 +22,12 @@ import { studioBrand } from "@/lib/brand";
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/agenda", icon: CalendarDays, label: "Ajanda" },
+  { href: "/requests", icon: ClipboardList, label: "Talepler" },
   { href: "/customers", icon: Users, label: "Müşteriler" },
   { href: "/albums", icon: FolderOpen, label: "Albümler" },
   { href: "/notes", icon: MessageSquare, label: "Notlar" },
   { href: "/uploads", icon: Upload, label: "Yüklemeler" },
+  { href: "/showcase", icon: PanelsTopLeft, label: "Site Vitrini" },
   { href: "/settings", icon: Settings, label: "Ayarlar" },
 ];
 

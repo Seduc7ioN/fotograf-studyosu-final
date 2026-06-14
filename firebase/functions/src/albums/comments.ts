@@ -1,6 +1,8 @@
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 
+const europeWest1 = functions.region("europe-west1");
+
 /**
  * YENİ — PicPeak'ten ilham
  * Müşteri albüm veya fotoğraf üzerine yorum bırakabilir.
@@ -8,7 +10,7 @@ import * as functions from "firebase-functions";
  */
 
 // Yorum ekle
-export const addComment = functions.https.onCall(async (data, context) => {
+export const addComment = europeWest1.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Giriş gerekli.");
   }
@@ -52,7 +54,7 @@ export const addComment = functions.https.onCall(async (data, context) => {
 });
 
 // Yorumları listele
-export const getComments = functions.https.onCall(async (data, context) => {
+export const getComments = europeWest1.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Giriş gerekli.");
   }
@@ -83,7 +85,7 @@ export const getComments = functions.https.onCall(async (data, context) => {
 });
 
 // Yorum sil (sadece kendi yorumu veya admin)
-export const deleteComment = functions.https.onCall(async (data, context) => {
+export const deleteComment = europeWest1.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Giriş gerekli.");
   }

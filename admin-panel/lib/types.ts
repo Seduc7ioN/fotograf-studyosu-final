@@ -157,6 +157,66 @@ export interface AlbumAnalytics {
   dailyViews: Record<string, number>;
 }
 
+export interface SiteShowcaseItem {
+  id: string;
+  title: string;
+  caption: string;
+  imageUrl: string;
+  storagePath: string;
+  order: number;
+  published: boolean;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export interface SiteMusicTrack {
+  id: string;
+  title: string;
+  audioUrl: string;
+  storagePath: string;
+  fileName: string;
+  contentType: string;
+  size: number;
+  active: boolean;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export type BookingRequestStatus =
+  | "new"
+  | "contacted"
+  | "proposal_sent"
+  | "accepted"
+  | "rejected";
+
+export interface BookingRequest {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  eventType: string;
+  preferredDate: string;
+  city: string;
+  venue: string;
+  message: string;
+  status: BookingRequestStatus;
+  adminNote?: string;
+  offerAmount?: number | null;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export interface CreateBookingRequestInput {
+  name: string;
+  phone: string;
+  email: string;
+  eventType: string;
+  preferredDate: string;
+  city: string;
+  venue: string;
+  message: string;
+}
+
 export interface DashboardStats {
   totalCustomers: number;
   totalAlbums: number;

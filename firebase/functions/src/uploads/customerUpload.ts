@@ -5,6 +5,8 @@ import * as os from "os";
 import * as fs from "fs";
 import sharp from "sharp";
 
+const europeWest1 = functions.region("europe-west1");
+
 /**
  * MÜŞTERİ FOTOĞRAF YÜKLEME — ONAY AKIŞI
  *
@@ -18,7 +20,7 @@ import sharp from "sharp";
  */
 
 // ─── 1. Müşteriye yükleme için pre-signed URL ver ─────────────────────────────
-export const getCustomerUploadUrl = functions.https.onCall(async (data, context) => {
+export const getCustomerUploadUrl = europeWest1.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Giriş gerekli.");
   }
@@ -89,7 +91,7 @@ export const getCustomerUploadUrl = functions.https.onCall(async (data, context)
 });
 
 // ─── 2. Admin: Pending yüklemeleri listele ────────────────────────────────────
-export const getPendingUploads = functions.https.onCall(async (data, context) => {
+export const getPendingUploads = europeWest1.https.onCall(async (data, context) => {
   if (context.auth?.token?.role !== "admin") {
     throw new functions.https.HttpsError("permission-denied", "Sadece admin.");
   }
@@ -132,6 +134,7 @@ export const getPendingUploads = functions.https.onCall(async (data, context) =>
 
 // ─── 3. Admin: Fotoğrafı onayla → albüme taşı ────────────────────────────────
 export const approveCustomerUpload = functions
+  .region("europe-west1")
   .runWith({ timeoutSeconds: 120, memory: "512MB" })
   .https.onCall(async (data, context) => {
     if (context.auth?.token?.role !== "admin") {
@@ -156,7 +159,7 @@ export const approveCustomerUpload = functions
       );
     }
 
-    const { albumId, storagePath, contentType } = uploadData;
+    const { albumId, storagePath } = uploadData;
 
     // Albümdeki mevcut fotoğraf sayısını al (sıralama için)
     const photosSnap = await db
@@ -239,7 +242,7 @@ export const approveCustomerUpload = functions
   });
 
 // ─── 4. Admin: Fotoğrafı reddet → sil ────────────────────────────────────────
-export const rejectCustomerUpload = functions.https.onCall(async (data, context) => {
+export const rejectCustomerUpload = europeWest1.https.onCall(async (data, context) => {
   if (context.auth?.token?.role !== "admin") {
     throw new functions.https.HttpsError("permission-denied", "Sadece admin.");
   }

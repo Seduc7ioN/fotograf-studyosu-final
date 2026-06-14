@@ -5,13 +5,15 @@ import * as os from "os";
 import * as fs from "fs";
 import sharp from "sharp";
 
+const europeWest1 = functions.region("europe-west1");
+
 /**
  * YENİ — PicPeak'ten ilham
  * Albüm için filigran (watermark) uygulayarak önizleme fotoğrafı oluşturur.
  * Orijinal dosya korunur; filigranlı versiyon ayrı klasörde saklanır.
  * Sadece watermarkEnabled=true olan albümler için çalışır.
  */
-export const applyWatermark = functions.https.onCall(async (data, context) => {
+export const applyWatermark = europeWest1.https.onCall(async (data, context) => {
   if (context.auth?.token?.role !== "admin") {
     throw new functions.https.HttpsError("permission-denied", "Sadece admin.");
   }
@@ -102,6 +104,7 @@ export const applyWatermark = functions.https.onCall(async (data, context) => {
  * Albümdeki tüm fotoğraflara toplu filigran uygular
  */
 export const applyWatermarkToAlbum = functions
+  .region("europe-west1")
   .runWith({ timeoutSeconds: 540, memory: "2GB" })
   .https.onCall(async (data, context) => {
     if (context.auth?.token?.role !== "admin") {
@@ -125,6 +128,8 @@ export const applyWatermarkToAlbum = functions
       )
     );
 
+    const failed = results.filter((result) => result.status === "rejected").length;
+
     functions.logger.info(`Toplu filigran başlatıldı: ${photosSnap.size} fotoğraf`);
-    return { total: photosSnap.size };
+    return { total: photosSnap.size, failed };
   });

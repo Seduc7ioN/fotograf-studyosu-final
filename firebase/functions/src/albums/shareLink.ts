@@ -1,6 +1,8 @@
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
-import { v4 as uuidv4 } from "uuid";
+import { randomUUID } from "crypto";
+
+const europeWest1 = functions.region("europe-west1");
 
 /**
  * YENİ — PicPeak'ten ilham
@@ -8,7 +10,7 @@ import { v4 as uuidv4 } from "uuid";
  * Müşteriye QR kodu paylaşılır → QR tarandığında şifresiz albüme gider.
  * Token süre bazlı (expiresAt) veya kalıcı olabilir.
  */
-export const createShareLink = functions.https.onCall(async (data, context) => {
+export const createShareLink = europeWest1.https.onCall(async (data, context) => {
   if (context.auth?.token?.role !== "admin") {
     throw new functions.https.HttpsError("permission-denied", "Sadece admin.");
   }
@@ -16,7 +18,7 @@ export const createShareLink = functions.https.onCall(async (data, context) => {
   const { albumId, expiresInDays } = data;
   if (!albumId) throw new functions.https.HttpsError("invalid-argument", "albumId gerekli.");
 
-  const token = uuidv4();
+  const token = randomUUID();
   const expiresAt = expiresInDays
     ? admin.firestore.Timestamp.fromDate(
         new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000)
@@ -48,7 +50,7 @@ export const createShareLink = functions.https.onCall(async (data, context) => {
  * YENİ — Share token ile albüme erişim (şifresiz, QR tarama senaryosu)
  * Flutter uygulamasında deep link ile açılır: studyo://share/{token}
  */
-export const getAlbumByShareToken = functions.https.onCall(async (data) => {
+export const getAlbumByShareToken = europeWest1.https.onCall(async (data) => {
   const { token } = data;
   if (!token) throw new functions.https.HttpsError("invalid-argument", "token gerekli.");
 

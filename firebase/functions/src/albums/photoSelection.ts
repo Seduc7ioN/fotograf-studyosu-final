@@ -1,6 +1,8 @@
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 
+const europeWest1 = functions.region("europe-west1");
+
 /**
  * YENİ — Lightfolio'dan ilham
  * Müşteri seçim modunda fotoğraf seçer (selected/deselected).
@@ -8,7 +10,7 @@ import * as functions from "firebase-functions";
  */
 
 // Müşteri fotoğraf seçer
-export const selectPhoto = functions.https.onCall(async (data, context) => {
+export const selectPhoto = europeWest1.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Giriş gerekli.");
   }
@@ -46,7 +48,7 @@ export const selectPhoto = functions.https.onCall(async (data, context) => {
 });
 
 // Admin seçimi onaylar veya reddeder
-export const approvePhotoSelection = functions.https.onCall(async (data, context) => {
+export const approvePhotoSelection = europeWest1.https.onCall(async (data, context) => {
   if (context.auth?.token?.role !== "admin") {
     throw new functions.https.HttpsError("permission-denied", "Sadece admin.");
   }
@@ -64,7 +66,7 @@ export const approvePhotoSelection = functions.https.onCall(async (data, context
 });
 
 // Albümdeki seçimlerin özetini döner
-export const getSelectionSummary = functions.https.onCall(async (data, context) => {
+export const getSelectionSummary = europeWest1.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Giriş gerekli.");
   }

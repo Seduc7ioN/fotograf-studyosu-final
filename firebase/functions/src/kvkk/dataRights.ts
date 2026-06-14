@@ -1,12 +1,14 @@
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 
+const europeWest1 = functions.region("europe-west1");
+
 /**
  * KVKK m.7 & m.11 — Veri Silme Hakkı
  * Müşteri "Verilerimi Sil" talebinde bulunduğunda tüm kişisel
  * verileri kalıcı olarak siler ve imha kaydını audit_logs'a yazar.
  */
-export const deleteMyData = functions.https.onCall(async (data, context) => {
+export const deleteMyData = europeWest1.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Giriş gerekli.");
   }
@@ -113,7 +115,7 @@ export const deleteMyData = functions.https.onCall(async (data, context) => {
  * Müşterinin kendine ait tüm meta-verileri JSON olarak döner.
  * (Fotoğraf dosyaları signed URL olarak eklenir)
  */
-export const exportMyData = functions.https.onCall(async (data, context) => {
+export const exportMyData = europeWest1.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Giriş gerekli.");
   }

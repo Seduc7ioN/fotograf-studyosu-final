@@ -1,6 +1,8 @@
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 
+const europeWest1 = functions.region("europe-west1");
+
 /**
  * Admin panelden albüm "hazır" olarak işaretlenince
  * müşteriye push bildirimi gönderir.
@@ -74,7 +76,7 @@ export const sendAlbumReadyNotification = functions.firestore
 /**
  * Callable: Admin panelden manuel bildirim göndermek için
  */
-export const sendManualNotification = functions.https.onCall(
+export const sendManualNotification = europeWest1.https.onCall(
   async (data, context) => {
     if (context.auth?.token?.role !== "admin") {
       throw new functions.https.HttpsError(

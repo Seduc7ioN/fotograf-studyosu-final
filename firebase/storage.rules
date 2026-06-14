@@ -39,14 +39,28 @@ service firebase.storage {
     }
 
     // YENİ: Müşteri pending yüklemeleri
-    // Müşteri yalnızca kendi albümünün pending klasörüne yazabilir.
-    // Okuma ve silme sadece admin/Cloud Functions.
+    // Müşteri yüklemesi Cloud Functions'ın ürettiği signed URL ile yapılır.
+    // Firebase Storage SDK üzerinden doğrudan yazma kapalıdır.
     match /albums/{albumId}/pending/{fileName} {
-      // Yazma: authenticated kullanıcı, geçerli resim formatı
-      // Not: Gerçek albüm sahipliği kontrolü getCustomerUploadUrl
-      // Cloud Function tarafından signed URL ile yapılır.
-      allow write: if isAuthenticated() && isValidImageType();
+      allow write: if false;
       allow read: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Public web sitesi vitrini
+    match /site/showcase/{fileName} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidImageType() &&
+                    request.resource.size < 20 * 1024 * 1024;
+      allow delete: if isAdmin();
+    }
+
+    // Public web sitesi giriş müziği
+    match /site/music/{fileName} {
+      allow read: if true;
+      allow write: if isAdmin() &&
+                    request.resource.contentType.matches('audio/.*') &&
+                    request.resource.size < 30 * 1024 * 1024;
       allow delete: if isAdmin();
     }
 

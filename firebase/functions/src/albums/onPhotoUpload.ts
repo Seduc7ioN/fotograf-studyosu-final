@@ -43,8 +43,6 @@ export const generateThumbnail = functions.storage
     // albums/album_001/originals/photo_001.jpg → album_001
     const pathParts = filePath.split("/");
     const albumId = pathParts[1];
-    const photoFileName = pathParts[pathParts.length - 1];
-    const photoId = path.basename(photoFileName, path.extname(photoFileName));
 
     const tempFilePath = path.join(os.tmpdir(), fileName);
     const thumbFileName = `${THUMB_PREFIX}${fileName}`;

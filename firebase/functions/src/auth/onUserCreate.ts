@@ -1,6 +1,8 @@
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 
+const europeWest1 = functions.region("europe-west1");
+
 /**
  * Yeni kullanıcı oluşturulduğunda Firestore'daki role'e göre
  * custom claim atar. Admin panelden kullanıcı oluşturulunca
@@ -36,7 +38,7 @@ export const onUserCreate = functions.auth.user().onCreate(async (user) => {
  * Admin panelden çağrılır. Mevcut kullanıcıya admin claim'i ekler.
  * Sadece mevcut admin çağırabilir (callable function).
  */
-export const setAdminRole = functions.https.onCall(async (data, context) => {
+export const setAdminRole = europeWest1.https.onCall(async (data, context) => {
   // Çağıran admin mi?
   if (context.auth?.token?.role !== "admin") {
     throw new functions.https.HttpsError(

@@ -1,12 +1,14 @@
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 
+const europeWest1 = functions.region("europe-west1");
+
 /**
  * Güvenli fotoğraf erişimi için signed URL üretir.
  * Flutter uygulaması bu fonksiyonu çağırarak fotoğraf URL'i alır.
  * URL 1 saat geçerlidir.
  */
-export const getSignedPhotoUrl = functions.https.onCall(
+export const getSignedPhotoUrl = europeWest1.https.onCall(
   async (data, context) => {
     // Giriş yapılmış mı?
     if (!context.auth) {
@@ -103,7 +105,7 @@ export const getSignedPhotoUrl = functions.https.onCall(
 /**
  * İndirme izni olan fotoğraflar için indirme URL'i üretir.
  */
-export const getDownloadUrl = functions.https.onCall(
+export const getDownloadUrl = europeWest1.https.onCall(
   async (data, context) => {
     if (!context.auth) {
       throw new functions.https.HttpsError(
