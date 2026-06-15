@@ -3,6 +3,7 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getFunctions } from "firebase/functions";
+import { getMessaging, isSupported } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -20,5 +21,11 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const functions = getFunctions(app, "europe-west1"); // Türkiye'ye en yakın
+export const messagingPromise =
+  typeof window === "undefined"
+    ? Promise.resolve(null)
+    : isSupported()
+        .then((supported) => (supported ? getMessaging(app) : null))
+        .catch(() => null);
 
 export default app;

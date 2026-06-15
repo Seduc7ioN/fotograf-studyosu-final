@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { AtSign, Bell, Menu, Phone } from "lucide-react";
+import { AtSign, Bell, BellRing, Loader2, Menu, Phone } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { studioBrand } from "@/lib/brand";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useAdminPushNotifications } from "@/hooks/useAdminPushNotifications";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -15,6 +16,12 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const { user } = useAuth();
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const { notifications, count, loading } = useNotifications();
+  const {
+    status: pushStatus,
+    saving: pushSaving,
+    enabled: pushEnabled,
+    enable: enablePush,
+  } = useAdminPushNotifications();
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[#38271d] bg-[#17100b]/95 px-3 backdrop-blur sm:px-5 lg:px-6">
@@ -68,8 +75,38 @@ export default function Header({ onMenuClick }: HeaderProps) {
               <div className="border-b border-[#38271d] px-4 py-3">
                 <p className="text-sm font-semibold text-[#f7f0e8]">Bildirimler</p>
                 <p className="mt-0.5 text-xs text-[#8d7462]">
-                  Bugünün planları ve müşteri notları.
+                  Bugünün planları, müşteri notları ve push bildirimleri.
                 </p>
+              </div>
+              <div className="border-b border-[#38271d] px-4 py-3">
+                {pushEnabled ? (
+                  <div className="flex items-center gap-2 rounded-lg border border-green-500/25 bg-green-500/10 px-3 py-2 text-xs font-semibold text-green-200">
+                    <BellRing size={15} />
+                    Bu cihazda kapalıyken bildirim açık
+                  </div>
+                ) : pushStatus === "missing-vapid" ? (
+                  <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-xs leading-5 text-amber-100">
+                    Web Push anahtarı eksik. Firebase VAPID key eklenince bu cihazda kapalı bildirim açılabilir.
+                  </div>
+                ) : pushStatus === "unsupported" ? (
+                  <div className="rounded-lg border border-[#433126] bg-[#100a07]/70 px-3 py-2 text-xs leading-5 text-[#b9a99b]">
+                    Bu tarayıcı kapalıyken push bildirimini desteklemiyor.
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={enablePush}
+                    disabled={pushSaving}
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#E8611A] px-3 py-2 text-xs font-bold text-[#170f0a] transition hover:bg-[#ff7a32] disabled:opacity-60"
+                  >
+                    {pushSaving ? (
+                      <Loader2 size={15} className="animate-spin" />
+                    ) : (
+                      <BellRing size={15} />
+                    )}
+                    Kapalıyken Bildirimleri Aç
+                  </button>
+                )}
               </div>
               {loading ? (
                 <div className="px-4 py-6 text-center text-sm text-[#8d7462]">
