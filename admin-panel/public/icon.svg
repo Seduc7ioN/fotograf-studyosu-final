@@ -1,5 +1,10 @@
-<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="256" height="256" rx="54" fill="#E8611A"/>
-  <rect x="12" y="12" width="232" height="232" rx="44" fill="#ffffff" fill-opacity="0.1"/>
-  <text x="38" y="174" fill="white" font-family="Georgia, 'Times New Roman', serif" font-size="112" font-weight="700">LA</text>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="112" fill="#100A07"/>
+  <rect x="22" y="22" width="468" height="468" rx="96" fill="#17100B"/>
+  <rect x="36" y="36" width="440" height="440" rx="84" stroke="#E8611A" stroke-opacity="0.38" stroke-width="2"/>
+  <circle cx="256" cy="196" r="132" fill="#E8611A" fill-opacity="0.08"/>
+  <text x="256" y="206" text-anchor="middle" fill="#E8611A" font-family="Georgia, 'Times New Roman', serif" font-size="126" font-weight="400" letter-spacing="4">LA</text>
+  <text x="256" y="286" text-anchor="middle" fill="#F7F0E8" font-family="Jost, Arial, sans-serif" font-size="44" font-weight="700" letter-spacing="13">LUME ART</text>
+  <text x="256" y="333" text-anchor="middle" fill="#B9A99B" font-family="'Brush Script MT', 'Segoe Script', cursive" font-size="34" font-style="italic" letter-spacing="3">wedding</text>
+  <path d="M176 382H336" stroke="#E8611A" stroke-width="3" stroke-linecap="round"/>
 </svg>

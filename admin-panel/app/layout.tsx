@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Jost } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import { studioBrand } from "@/lib/brand";
@@ -19,10 +19,22 @@ const body = Jost({
 export const metadata: Metadata = {
   title: studioBrand.adminTitle,
   description: `${studioBrand.name} yönetim paneli`,
+  manifest: "/manifest.json",
+  applicationName: studioBrand.name,
+  appleWebApp: {
+    capable: true,
+    title: studioBrand.name,
+    statusBarStyle: "black-translucent",
+  },
   icons: {
     icon: "/icon.svg",
-    apple: "/icon.svg",
+    shortcut: "/icon-192.png",
+    apple: "/apple-touch-icon.png",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#100A07",
 };
 
 export default function RootLayout({
